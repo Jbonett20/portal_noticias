@@ -1,0 +1,112 @@
+<?php
+require_once 'models/News.php';
+
+class NewsController {
+    private $db;
+    private $newsModel;
+    
+    public function __construct($database) {
+        $this->db = $database;
+        $this->newsModel = new News($database);
+    }
+    
+    public function index($segments = []) {
+        $page = $_GET['page'] ?? 1;
+        $limit = 12;
+        $offset = ($page - 1) * $limit;
+        
+        $news = $this->newsModel->getPublished($limit, $offset);
+        $totalNews = $this->newsModel->count(true);
+        $totalPages = ceil($totalNews / $limit);
+        
+        $data = [
+            'title' => 'Noticias - ' . SITE_NAME,
+            'news' => $news,
+            'currentPage' => $page,
+            'totalPages' => $totalPages,
+            'pagination' => $this->generatePagination($page, $totalPages, BASE_URL . 'news')
+        ];
+        
+        $this->render('news/index', $data);
+    }
+    
+    public function show($segments = []) {
+        if (!isset($segments[1])) {
+            $this->notFound();
+            return;
+        }
+        
+        $slug = $segments[1];
+        $news = $this->newsModel->findBySlug($slug);
+        
+        if (!$news) {
+            $this->notFound();
+            return;
+        }
+        
+        // Obtener noticias relacionadas
+        $relatedNews = $this->newsModel->getLatest(4);
+        // Filtrar la noticia actual
+        $relatedNews = array_filter($relatedNews, function($item) use ($news) {
+            return $item['id'] !== $news['id'];
+        });
+        $relatedNews = array_slice($relatedNews, 0, 3);
+        
+        $data = [
+            'title' => $news['title'] . ' - ' . SITE_NAME,
+            'news' => $news,
+            'relatedNews' => $relatedNews
+        ];
+        
+        $this->render('news/show', $data);
+    }
+    
+    private function generatePagination($currentPage, $totalPages, $baseUrl) {
+        $pagination = [];
+        
+        // Página anterior
+        if ($currentPage > 1) {
+            $pagination['prev'] = $baseUrl . '?page=' . ($currentPage - 1);
+        }
+        
+        // Páginas numeradas
+        $start = max(1, $currentPage - 2);
+        $end = min($totalPages, $currentPage + 2);
+        
+        for ($i = $start; $i <= $end; $i++) {
+            $pagination['pages'][] = [
+                'number' => $i,
+                'url' => $baseUrl . '?page=' . $i,
+                'current' => $i == $currentPage
+            ];
+        }
+        
+        // Página siguiente
+        if ($currentPage < $totalPages) {
+            $pagination['next'] = $baseUrl . '?page=' . ($currentPage + 1);
+        }
+        
+        return $pagination;
+    }
+    
+    private function notFound() {
+        http_response_code(404);
+        $data = ['title' => 'Noticia no encontrada'];
+        $this->render('errors/404', $data);
+    }
+    
+    private function render($view, $data = []) {
+        // Extraer variables
+        extract($data);
+        
+        // Generar ruta del archivo de vista
+        $viewFile = __DIR__ . "/../views/{$view}.php";
+        
+        if (file_exists($viewFile)) {
+            include $viewFile;
+        } else {
+            echo "Vista no encontrada: {$view}";
+        }
+    }
+}
+?>
