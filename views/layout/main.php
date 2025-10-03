@@ -18,11 +18,50 @@
         }
         
         .business-card {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border: none;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px rgba(30, 60, 114, 0.12);
+            background: white;
+            border: 1px solid #e2e8f0;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .business-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(to bottom, #1e3c72, #2a5298);
+            transform: scaleY(0);
             transition: transform 0.3s ease;
         }
         
         .business-card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(30, 60, 114, 0.25);
+            border-color: #2a5298;
+        }
+        
+        .business-card:hover::before {
+            transform: scaleY(1);
+        }
+        
+        .business-card .card-body {
+            padding: 2rem;
+        }
+        
+        .business-card .card-title a {
+            color: #1a1a2e;
+            font-weight: 700;
+            transition: color 0.3s ease;
+        }
+        
+        .business-card .card-title a:hover {
+            color: #2a5298;
         }
         
         .news-card {
@@ -34,13 +73,67 @@
         }
         
         .section-card {
-            background: linear-gradient(45deg, #f093fb 0%, #f5576c 100%);
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #1a1a2e 100%);
             color: white;
-            transition: transform 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 20px;
+            border: none;
+            box-shadow: 0 8px 30px rgba(30, 60, 114, 0.2);
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .section-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            opacity: 0.3;
+            z-index: 1;
+        }
+        
+        .section-card .card-body {
+            position: relative;
+            z-index: 2;
+            padding: 2.5rem 2rem;
         }
         
         .section-card:hover {
-            transform: scale(1.05);
+            transform: translateY(-10px) scale(1.03);
+            box-shadow: 0 20px 50px rgba(30, 60, 114, 0.35);
+        }
+        
+        .section-card i {
+            color: rgba(255,255,255,0.9);
+            margin-bottom: 1.5rem;
+            text-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        .section-card .card-title {
+            color: white;
+            font-weight: 700;
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .section-card .card-text {
+            color: rgba(255,255,255,0.9);
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+        
+        .section-card .badge {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            backdrop-filter: blur(10px);
         }
         
         .navbar-brand {
@@ -55,10 +148,22 @@
         }
         
         .business-logo {
-            width: 60px;
-            height: 60px;
+            width: 70px;
+            height: 70px;
             object-fit: cover;
-            border-radius: 10px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(30, 60, 114, 0.15);
+            border: 2px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+        
+        .business-card:hover .business-logo {
+            box-shadow: 0 6px 20px rgba(30, 60, 114, 0.25);
+            border-color: #2a5298;
+        }
+        
+        .business-logo.bg-secondary {
+            background: linear-gradient(45deg, #1e3c72, #2a5298) !important;
         }
     </style>
 </head>

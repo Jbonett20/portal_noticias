@@ -40,13 +40,35 @@ class BusinessController {
     }
     
     public function show($segments = []) {
-        if (!isset($segments[1])) {
+        // Obtener el identificador del negocio desde GET o segments
+        $identifier = null;
+        $isId = false;
+        
+        if (isset($_GET['id'])) {
+            // Si viene por parámetro GET
+            $identifier = $_GET['id'];
+            $isId = true;
+        } elseif (isset($_GET['slug'])) {
+            // Si viene slug por parámetro GET
+            $identifier = $_GET['slug'];
+            $isId = false;
+        } elseif (isset($segments[1])) {
+            // Si viene por URL segments
+            $identifier = $segments[1];
+            $isId = is_numeric($identifier);
+        }
+        
+        if (!$identifier) {
             $this->notFound();
             return;
         }
         
-        $slug = $segments[1];
-        $business = $this->businessModel->findBySlug($slug);
+        // Buscar el negocio por ID o slug
+        if ($isId) {
+            $business = $this->businessModel->findById($identifier);
+        } else {
+            $business = $this->businessModel->findBySlug($identifier);
+        }
         
         if (!$business) {
             $this->notFound();
