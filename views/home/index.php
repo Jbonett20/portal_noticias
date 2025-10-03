@@ -105,7 +105,7 @@ ob_start();
         <div class="row">
             <?php foreach ($sections as $section): ?>
             <div class="col-lg-4 col-md-6 mb-4">
-                <a href="<?= BASE_URL ?>section/<?= $section['slug'] ?>" 
+                <a href="index.php?controller=section&action=show&slug=<?= $section['slug'] ?>" 
                    class="text-decoration-none">
                     <div class="card section-card h-100 shadow-sm border-0">
                         <div class="card-body text-center">
@@ -125,7 +125,7 @@ ob_start();
         </div>
         
         <div class="text-center">
-            <a href="<?= BASE_URL ?>section" class="btn btn-primary">
+            <a href="index.php?controller=section&action=index" class="btn btn-primary">
                 <i class="bi bi-grid"></i> Ver Todas las Secciones
             </a>
         </div>

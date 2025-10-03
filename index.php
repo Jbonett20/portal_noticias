@@ -15,6 +15,15 @@ class Router {
     }
     
     public function dispatch() {
+        // Verificar si se usan parámetros GET para el enrutamiento
+        if (isset($_GET['controller'])) {
+            $controller = ucfirst($_GET['controller']) . 'Controller';
+            $action = $_GET['action'] ?? 'index';
+            $segments = [];
+            $this->callAction($controller, $action, $segments);
+            return;
+        }
+        
         $uri = $this->getUri();
         
         if (array_key_exists($uri, $this->routes)) {
