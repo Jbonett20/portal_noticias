@@ -4,69 +4,202 @@ ob_start();
 ?>
 
 <style>
-        .news-card {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            height: 100%;
-        }
-        .news-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-        }
-        .news-image {
-            height: 200px;
-            object-fit: cover;
-            width: 100%;
-        }
-        .featured-news {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-radius: 15px;
-            padding: 2rem;
-            margin-bottom: 2rem;
-        }
-        .featured-card {
-            background: rgba(255,255,255,0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 10px;
-        }
-        .sidebar-card {
-            border: none;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            border-radius: 10px;
-            margin-bottom: 1.5rem;
-        }
-        .search-box {
-            border-radius: 25px;
-            border: 2px solid #e3f2fd;
-            padding: 0.75rem 1.5rem;
-        }
-        .search-box:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
-        }
-        .category-badge {
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            color: white;
-            padding: 0.25rem 0.75rem;
-            border-radius: 15px;
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            font-weight: 600;
-        }
-        .pagination .page-link {
-            border-radius: 25px;
-            margin: 0 2px;
-            border: none;
-            color: #667eea;
-        }
-        .pagination .page-item.active .page-link {
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            border: none;
-        }
-    </style>
-
-    <div class="container mt-4">
+    .news-card {
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        height: 100%;
+        border: none;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 8px 30px rgba(30, 60, 114, 0.12);
+        background: white;
+        border: 1px solid #e2e8f0;
+    }
+    .news-card:hover {
+        transform: translateY(-8px) scale(1.02);
+        box-shadow: 0 20px 40px rgba(30, 60, 114, 0.25);
+        border-color: #2a5298;
+    }
+    .news-image {
+        height: 220px;
+        object-fit: cover;
+        width: 100%;
+        transition: transform 0.4s ease;
+    }
+    .news-card:hover .news-image {
+        transform: scale(1.1);
+    }
+    .featured-news {
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #1a1a2e 100%);
+        color: white;
+        border-radius: 25px;
+        padding: 3rem;
+        margin-bottom: 3rem;
+        position: relative;
+        overflow: hidden;
+    }
+    .featured-news::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+        opacity: 0.3;
+    }
+    .featured-card {
+        background: rgba(255,255,255,0.15);
+        backdrop-filter: blur(15px);
+        border: 2px solid rgba(255,255,255,0.2);
+        border-radius: 20px;
+        transition: all 0.4s ease;
+        overflow: hidden;
+    }
+    .featured-card:hover {
+        transform: translateY(-8px);
+        background: rgba(255,255,255,0.25);
+        border-color: rgba(255,255,255,0.4);
+    }
+    .sidebar-card {
+        border: none;
+        box-shadow: 0 8px 30px rgba(30, 60, 114, 0.12);
+        border-radius: 20px;
+        margin-bottom: 2rem;
+        background: white;
+        border: 1px solid #e2e8f0;
+        overflow: hidden;
+    }
+    .sidebar-card .card-header {
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        color: white;
+        border: none;
+        font-weight: 700;
+        padding: 1.5rem;
+        border-radius: 0;
+    }
+    .search-box {
+        border-radius: 30px;
+        border: 2px solid #e2e8f0;
+        padding: 1rem 1.5rem;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background: white;
+    }
+    .search-box:focus {
+        border-color: #2a5298;
+        box-shadow: 0 0 0 0.2rem rgba(42, 82, 152, 0.25);
+        outline: none;
+    }
+    .category-badge {
+        background: linear-gradient(45deg, #1e3c72, #2a5298);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 25px;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        font-weight: 700;
+        letter-spacing: 1px;
+        box-shadow: 0 3px 10px rgba(30, 60, 114, 0.3);
+    }
+    .pagination .page-link {
+        border-radius: 30px;
+        margin: 0 3px;
+        border: 2px solid #e2e8f0;
+        color: #1e3c72;
+        padding: 0.75rem 1.25rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    .pagination .page-link:hover {
+        border-color: #2a5298;
+        background: #2a5298;
+        color: white;
+        transform: translateY(-2px);
+    }
+    .pagination .page-item.active .page-link {
+        background: linear-gradient(45deg, #1e3c72, #2a5298);
+        border-color: #1e3c72;
+        box-shadow: 0 4px 15px rgba(30, 60, 114, 0.3);
+    }
+    .btn-primary {
+        background: linear-gradient(45deg, #1e3c72, #2a5298);
+        border: none;
+        border-radius: 30px;
+        padding: 0.75rem 1.5rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(30, 60, 114, 0.3);
+    }
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(30, 60, 114, 0.4);
+        background: linear-gradient(45deg, #2a5298, #1e3c72);
+    }
+    .btn-outline-primary {
+        border: 2px solid #1e3c72;
+        color: #1e3c72;
+        border-radius: 30px;
+        padding: 0.75rem 1.5rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        background: white;
+    }
+    .btn-outline-primary:hover {
+        background: linear-gradient(45deg, #1e3c72, #2a5298);
+        border-color: #1e3c72;
+        color: white;
+        transform: translateY(-2px);
+    }
+    .btn-outline-success {
+        border: 2px solid #059669;
+        color: #059669;
+        border-radius: 30px;
+        padding: 0.75rem 1.5rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        background: white;
+    }
+    .btn-outline-success:hover {
+        background: #059669;
+        border-color: #059669;
+        color: white;
+        transform: translateY(-2px);
+    }
+    .btn-outline-info {
+        border: 2px solid #0891b2;
+        color: #0891b2;
+        border-radius: 30px;
+        padding: 0.75rem 1.5rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        background: white;
+    }
+    .btn-outline-info:hover {
+        background: #0891b2;
+        border-color: #0891b2;
+        color: white;
+        transform: translateY(-2px);
+    }
+    body {
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        min-height: 100vh;
+    }
+    .card-title {
+        color: #1a1a2e;
+        font-weight: 700;
+    }
+    .text-muted {
+        color: #64748b !important;
+    }
+    .news-card .card-footer {
+        background: #f8fafc;
+        border-top: 1px solid #e2e8f0;
+    }
+    .featured-news h2 {
+        font-weight: 800;
+        text-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+</style>    <div class="container mt-4">
         <!-- Noticias Destacadas -->
         <?php if (!empty($featuredNews)): ?>
         <div class="featured-news">
