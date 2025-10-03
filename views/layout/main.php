@@ -12,9 +12,172 @@
     
     <style>
         .hero-section {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #1a1a2e 100%);
             color: white;
-            padding: 80px 0;
+            padding: 5rem 0;
+            margin-bottom: 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            opacity: 0.3;
+        }
+        
+        .hero-icon {
+            width: 120px;
+            height: 120px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 2rem;
+            backdrop-filter: blur(10px);
+        }
+        
+        .hero-icon i {
+            font-size: 4rem;
+        }
+        
+        .filter-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(30, 60, 114, 0.08);
+            margin-bottom: 2rem;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .filter-btn {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border: 1px solid #cbd5e0;
+            color: #64748b;
+            padding: 0.8rem 1.5rem;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            margin: 0.25rem;
+            font-weight: 600;
+        }
+        
+        .filter-btn:hover, .filter-btn.active {
+            background: linear-gradient(45deg, #1e3c72, #2a5298);
+            color: white;
+            border-color: #2a5298;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(30, 60, 114, 0.3);
+        }
+        
+        .business-logo {
+            width: 70px;
+            height: 70px;
+            object-fit: cover;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(30, 60, 114, 0.15);
+            border: 2px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+        
+        .business-card:hover .business-logo {
+            box-shadow: 0 6px 20px rgba(30, 60, 114, 0.25);
+            border-color: #2a5298;
+            transform: scale(1.05);
+        }
+        
+        .business-logo.bg-secondary {
+            background: linear-gradient(45deg, #1e3c72, #2a5298) !important;
+        }
+        
+        .business-stats {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            padding: 1rem;
+            border-radius: 15px;
+            margin-top: 1rem;
+            border: 1px solid #3b82f6;
+        }
+        
+        .contact-info {
+            background: #f8fafc;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-top: 1rem;
+            border-left: 4px solid #2a5298;
+        }
+        
+        .btn-primary-gradient {
+            background: linear-gradient(45deg, #1e3c72, #2a5298);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 0.6rem 1.5rem;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(30, 60, 114, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary-gradient:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(30, 60, 114, 0.4);
+            color: white;
+        }
+        
+        .btn-success-gradient {
+            background: linear-gradient(45deg, #10b981, #34d399);
+            color: white;
+            border-radius: 25px;
+            padding: 1rem 2rem;
+            font-weight: 600;
+            border: none;
+        }
+        
+        .cta-section {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        }
+        
+        .empty-state-icon {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(45deg, #e2e8f0, #cbd5e0);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 2rem;
+        }
+        
+        .contact-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .contact-icon.phone {
+            background: linear-gradient(45deg, #10b981, #34d399);
+        }
+        
+        .contact-icon.location {
+            background: linear-gradient(45deg, #f59e0b, #fbbf24);
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
         
         .business-card {

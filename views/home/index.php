@@ -234,7 +234,4 @@ ob_start();
 </section>
 <?php endif; ?>
 
-<?php
-$content = ob_get_clean();
-include __DIR__ . '/../layout/main.php';
-?>
+<!-- Sin include manual de main.php -->
