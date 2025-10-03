@@ -72,7 +72,11 @@ class HomeController {
         $viewFile = __DIR__ . "/../views/{$view}.php";
         
         if (file_exists($viewFile)) {
+            ob_start();
             include $viewFile;
+            $content = ob_get_clean();
+            
+            include __DIR__ . '/../views/layout/main.php';
         } else {
             echo "Vista no encontrada: {$view}";
         }

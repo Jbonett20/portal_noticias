@@ -1,33 +1,28 @@
 <?php
-require_once 'config/config.php';
-require_once 'config/Database.php';
-require_once 'models/Business.php';
+$pages = [
+    'business' => 'http://localhost/clone/portal_noticias/business',
+    'section' => 'http://localhost/clone/portal_noticias/section', 
+    'home' => 'http://localhost/clone/portal_noticias/',
+    'news' => 'http://localhost/clone/portal_noticias/news'
+];
 
-try {
-    $db = Database::getInstance();
-    $businessModel = new Business($db);
-    $businesses = $businessModel->getAll();
-    
-    echo "<h2>Lista de Negocios Disponibles</h2>";
-    
-    if (!empty($businesses)) {
-        echo "<table border='1' style='border-collapse: collapse; width: 100%; margin: 1rem 0;'>";
-        echo "<tr style='background: #f8f9fa;'><th>ID</th><th>Nombre</th><th>Estado</th><th>Enlaces de Prueba</th></tr>";
+echo "Verificando duplicación de navbar en páginas...\n\n";
+
+foreach($pages as $name => $url) {
+    try {
+        $html = file_get_contents($url);
+        $navCount = substr_count($html, '<nav class="navbar');
+        echo "Página $name: $navCount navbars\n";
         
-        foreach ($businesses as $business) {
-            echo "<tr>";
-            echo "<td>" . $business['id'] . "</td>";
-            echo "<td>" . htmlspecialchars($business['name']) . "</td>";
-            echo "<td>" . ($business['is_published'] ? 'Publicado' : 'No publicado') . "</td>";
-            echo "<td>";
-            
-            // Enlaces por ID
-            echo "<a href='index.php?controller=business&action=show&id=" . $business['id'] . "' target='_blank'>Ver por ID</a><br>";
-            
-            // Enlaces por slug (si existe)
-            if (!empty($business['slug'])) {
-                echo "<a href='index.php?controller=business&action=show&slug=" . $business['slug'] . "' target='_blank'>Ver por Slug</a><br>";
-                echo "<a href='business/" . $business['slug'] . "' target='_blank'>URL Amigable</a>";
+        if($navCount > 1) {
+            echo "  ⚠️  DUPLICACIÓN DETECTADA!\n";
+        } else {
+            echo "  ✅ Sin duplicación\n";
+        }
+    } catch(Exception $e) {
+        echo "Página $name: Error - " . $e->getMessage() . "\n";
+    }
+}
             }
             
             echo "</td>";

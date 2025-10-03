@@ -19,16 +19,39 @@ class BusinessController {
         $limit = 12;
         $offset = ($page - 1) * $limit;
         
+        // Verificar que la sección existe si se especifica
+        if ($sectionId) {
+            $sectionExists = $this->sectionModel->findById($sectionId);
+            if (!$sectionExists) {
+                // Redirigir a la página principal de negocios si la sección no existe
+                header('Location: ' . BASE_URL . 'business');
+                exit;
+            }
+        }
+        
         $businesses = $this->businessModel->getPublished($limit, $offset, $sectionId);
         $totalBusinesses = $this->businessModel->count($sectionId);
         $totalPages = ceil($totalBusinesses / $limit);
         
-        // Obtener secciones para el filtro
-        $sections = $this->sectionModel->getAll();
+        // Obtener secciones para el filtro - solo las que tienen negocios
+        $sections = $this->sectionModel->getAllWithBusinessCount();
+        // Filtrar solo secciones con negocios activos
+        $sections = array_filter($sections, function($section) {
+            return $section['business_count'] > 0;
+        });
+        
+        // Verificar que los negocios tienen datos válidos
+        $validBusinesses = [];
+        foreach ($businesses as $business) {
+            // Verificar campos requeridos
+            if (!empty($business['name']) && !empty($business['section_id'])) {
+                $validBusinesses[] = $business;
+            }
+        }
         
         $data = [
             'title' => 'Negocios - ' . SITE_NAME,
-            'businesses' => $businesses,
+            'businesses' => $validBusinesses,
             'sections' => $sections,
             'currentSection' => $sectionId,
             'currentPage' => $page,

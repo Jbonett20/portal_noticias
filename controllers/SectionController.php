@@ -14,11 +14,25 @@ class SectionController {
     }
     
     public function index($segments = []) {
-        $sections = $this->sectionModel->getAllWithBusinessCount();
+        // Obtener secciones con conteo de negocios
+        $allSections = $this->sectionModel->getAllWithBusinessCount();
+        
+        // Filtrar solo secciones que tienen negocios activos
+        $sectionsWithBusinesses = array_filter($allSections, function($section) {
+            return $section['business_count'] > 0;
+        });
+        
+        // Verificar que existan datos válidos
+        $validSections = [];
+        foreach ($sectionsWithBusinesses as $section) {
+            if (!empty($section['title']) && !empty($section['id'])) {
+                $validSections[] = $section;
+            }
+        }
         
         $data = [
             'title' => 'Secciones - ' . SITE_NAME,
-            'sections' => $sections
+            'sections' => $validSections
         ];
         
         $this->render('sections/index', $data);
@@ -102,7 +116,11 @@ class SectionController {
         $viewFile = __DIR__ . "/../views/{$view}.php";
         
         if (file_exists($viewFile)) {
+            ob_start();
             include $viewFile;
+            $content = ob_get_clean();
+            
+            include __DIR__ . '/../views/layout/main.php';
         } else {
             echo "Vista no encontrada: {$view}";
         }

@@ -1,6 +1,5 @@
 <?php
 $title = $section['title'] . ' - Negocios';
-ob_start();
 ?>
 
 <style>
@@ -238,7 +237,4 @@ ob_start();
     <?php endif; ?>
 </div>
 
-<?php
-$content = ob_get_clean();
-include dirname(__DIR__) . '/layout/main.php';
-?>
+<!-- Sin include manual de main.php -->
