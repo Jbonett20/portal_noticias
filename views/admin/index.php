@@ -131,10 +131,11 @@ ob_start();
                             </ul>
                         </div>
                         <div class="col-md-4">
-                            <h6><i class="bi bi-newspaper"></i> Contenido</h6>
+                            <h6><i class="bi bi-newspaper"></i> Noticias</h6>
                             <ul class="list-unstyled">
-                                <li><a href="<?= BASE_URL ?>news" class="text-decoration-none">Ver todas las noticias</a></li>
-                                <li><a href="<?= BASE_URL ?>section" class="text-decoration-none">Gestionar secciones</a></li>
+                                <li><a href="index.php?controller=news&action=admin" class="text-decoration-none">Gestionar noticias</a></li>
+                                <li><a href="index.php?controller=news&action=create" class="text-decoration-none">Crear nueva noticia</a></li>
+                                <li><a href="index.php?controller=news&action=index" class="text-decoration-none">Ver sitio público</a></li>
                             </ul>
                         </div>
                     </div>

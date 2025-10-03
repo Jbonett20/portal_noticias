@@ -25,12 +25,13 @@ class SectionController {
     }
     
     public function show($segments = []) {
-        if (!isset($segments[1])) {
+        $slug = $_GET['slug'] ?? null;
+        
+        if (!$slug) {
             $this->notFound();
             return;
         }
         
-        $slug = $segments[1];
         $section = $this->sectionModel->findBySlug($slug);
         
         if (!$section) {
@@ -53,7 +54,7 @@ class SectionController {
             'businesses' => $businesses,
             'currentPage' => $page,
             'totalPages' => $totalPages,
-            'pagination' => $this->generatePagination($page, $totalPages, BASE_URL . 'section/' . $slug)
+            'pagination' => $this->generatePagination($page, $totalPages, 'index.php?controller=section&action=show&slug=' . $slug)
         ];
         
         $this->render('sections/show', $data);
