@@ -80,10 +80,10 @@
                         </p>
                         
                         <div class="d-flex flex-column flex-md-row gap-3 justify-content-center">
-                            <a href="index.php?controller=news&action=index" class="btn-home">
+                            <a href="<?= BASE_URL ?>news" class="btn-home">
                                 <i class="fas fa-newspaper"></i> Ver todas las noticias
                             </a>
-                            <a href="index.php" class="btn-home">
+                            <a href="<?= BASE_URL ?>" class="btn-home">
                                 <i class="fas fa-home"></i> Ir al inicio
                             </a>
                         </div>
