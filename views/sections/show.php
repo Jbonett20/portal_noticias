@@ -71,7 +71,7 @@ $title = $section['title'] . ' - Negocios';
                 <nav aria-label="breadcrumb" class="mb-3">
                     <ol class="breadcrumb text-white-50">
                         <li class="breadcrumb-item">
-                            <a href="index.php" class="text-white-50 text-decoration-none">
+                            <a href="<?= BASE_URL ?>" class="text-white-50 text-decoration-none">
                                 <i class="fas fa-home"></i> Inicio
                             </a>
                         </li>
@@ -100,7 +100,7 @@ $title = $section['title'] . ' - Negocios';
                 </div>
             </div>
             <div class="col-md-4 text-end">
-                <a href="index.php" class="btn btn-light back-btn">
+                <a href="<?= BASE_URL ?>" class="btn btn-light back-btn">
                     <i class="fas fa-arrow-left"></i> Volver al Inicio
                 </a>
             </div>
@@ -226,10 +226,10 @@ $title = $section['title'] . ' - Negocios';
             Aún no se han registrado negocios en la categoría "<?php echo htmlspecialchars($section['title']); ?>".
         </p>
         <div class="d-flex gap-2 justify-content-center">
-            <a href="index.php" class="btn btn-primary">
+            <a href="<?= BASE_URL ?>" class="btn btn-primary">
                 <i class="fas fa-home"></i> Volver al Inicio
             </a>
-            <a href="index.php?controller=business" class="btn btn-outline-primary">
+            <a href="<?= BASE_URL ?>business" class="btn btn-outline-primary">
                 <i class="fas fa-store"></i> Ver Todos los Negocios
             </a>
         </div>
