@@ -1,6 +1,5 @@
 <?php
 $title = 'Contacto para Registro - ' . SITE_NAME;
-ob_start();
 ?>
 
 <div class="container py-5">
@@ -112,7 +111,4 @@ ob_start();
     }
 </style>
 
-<?php
-$content = ob_get_clean();
-include dirname(__DIR__) . '/layout/main.php';
-?>
+<!-- Sin include manual de main.php -->
