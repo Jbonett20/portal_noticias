@@ -1,16 +1,22 @@
 <?php
 require_once 'models/User.php';
 require_once 'models/Business.php';
+require_once 'models/News.php';
+require_once 'models/Section.php';
 
 class AdminController {
     private $db;
     private $userModel;
     private $businessModel;
+    private $newsModel;
+    private $sectionModel;
     
     public function __construct($database) {
         $this->db = $database;
         $this->userModel = new User($database);
         $this->businessModel = new Business($database);
+        $this->newsModel = new News($database);
+        $this->sectionModel = new Section($database);
     }
     
     public function index($segments = []) {
@@ -208,6 +214,74 @@ class AdminController {
         redirect(BASE_URL . 'admin/users');
     }
     
+    public function updateUser($segments = []) {
+        require_once __DIR__ . '/../seguridad.php';
+        verificarAdmin();
+        
+        header('Content-Type: application/json');
+        
+        $userId = $segments[1] ?? null;
+        if (!$userId) {
+            echo json_encode(['success' => false, 'message' => 'ID de usuario no válido']);
+            return;
+        }
+        
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['success' => false, 'message' => 'Método no permitido']);
+            return;
+        }
+        
+        $username = trim($_POST['username'] ?? '');
+        $email = trim($_POST['email'] ?? '');
+        $password = trim($_POST['password'] ?? '');
+        $role = $_POST['role'] ?? 'user';
+        $status = $_POST['status'] ?? 'active';
+        
+        // Validaciones
+        if (empty($username) || empty($email)) {
+            echo json_encode(['success' => false, 'message' => 'Username y email son obligatorios']);
+            return;
+        }
+        
+        // Verificar si el username ya existe (excepto para este usuario)
+        $existingUser = $this->userModel->findByUsername($username);
+        if ($existingUser && $existingUser['id'] != $userId) {
+            echo json_encode(['success' => false, 'message' => 'El nombre de usuario ya existe']);
+            return;
+        }
+        
+        // Verificar si el email ya existe (excepto para este usuario)
+        $existingEmail = $this->userModel->findByEmail($email);
+        if ($existingEmail && $existingEmail['id'] != $userId) {
+            echo json_encode(['success' => false, 'message' => 'El email ya está registrado']);
+            return;
+        }
+        
+        try {
+            $updateData = [
+                'username' => $username,
+                'email' => $email,
+                'role' => $role,
+                'status' => $status
+            ];
+            
+            // Solo actualizar contraseña si se proporcionó una nueva
+            if (!empty($password)) {
+                if (strlen($password) < 6) {
+                    echo json_encode(['success' => false, 'message' => 'La contraseña debe tener al menos 6 caracteres']);
+                    return;
+                }
+                $updateData['password'] = password_hash($password, PASSWORD_DEFAULT);
+            }
+            
+            $this->userModel->update($userId, $updateData);
+            echo json_encode(['success' => true, 'message' => 'Usuario actualizado correctamente']);
+            
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'message' => 'Error al actualizar: ' . $e->getMessage()]);
+        }
+    }
+    
     // ===== GESTIÓN DE NOTICIAS =====
     
     public function newsList() {
@@ -347,6 +421,68 @@ class AdminController {
         $this->render('admin/news-edit', $data);
     }
     
+    public function newsUpdate($segments = []) {
+        require_once __DIR__ . '/../seguridad.php';
+        verificarAdmin();
+        
+        header('Content-Type: application/json');
+        
+        $newsId = $segments[1] ?? null;
+        if (!$newsId) {
+            echo json_encode(['success' => false, 'message' => 'ID de noticia no válido']);
+            return;
+        }
+        
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['success' => false, 'message' => 'Método no permitido']);
+            return;
+        }
+        
+        $title = trim($_POST['title'] ?? '');
+        $summary = trim($_POST['summary'] ?? '');
+        $content = trim($_POST['content'] ?? '');
+        $sectionId = $_POST['section_id'] ?? null;
+        $status = $_POST['status'] ?? 'draft';
+        
+        // Validaciones
+        if (empty($title) || empty($content)) {
+            echo json_encode(['success' => false, 'message' => 'Título y contenido son obligatorios']);
+            return;
+        }
+        
+        try {
+            $updateData = [
+                'title' => $title,
+                'summary' => $summary,
+                'content' => $content,
+                'section_id' => $sectionId,
+                'status' => $status,
+                'updated_at' => date('Y-m-d H:i:s')
+            ];
+            
+            // Manejar imagen si se subió una nueva
+            if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+                $uploadDir = __DIR__ . '/../uploads/news/';
+                if (!is_dir($uploadDir)) {
+                    mkdir($uploadDir, 0755, true);
+                }
+                
+                $fileName = time() . '_' . basename($_FILES['image']['name']);
+                $uploadPath = $uploadDir . $fileName;
+                
+                if (move_uploaded_file($_FILES['image']['tmp_name'], $uploadPath)) {
+                    $updateData['image'] = 'uploads/news/' . $fileName;
+                }
+            }
+            
+            $this->newsModel->update($newsId, $updateData);
+            echo json_encode(['success' => true, 'message' => 'Noticia actualizada correctamente']);
+            
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'message' => 'Error al actualizar: ' . $e->getMessage()]);
+        }
+    }
+    
     public function newsDelete($segments = []) {
         require_once __DIR__ . '/../seguridad.php';
         verificarAdmin();
@@ -403,34 +539,37 @@ class AdminController {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $name = trim($_POST['name'] ?? '');
             $description = trim($_POST['description'] ?? '');
+            $shortDescription = trim($_POST['short_description'] ?? '');
             $address = trim($_POST['address'] ?? '');
             $phone = trim($_POST['phone'] ?? '');
             $email = trim($_POST['email'] ?? '');
             $website = trim($_POST['website'] ?? '');
             $sectionId = $_POST['section_id'] ?? null;
-            $userId = $_POST['user_id'] ?? null;
+            $createdBy = $_POST['created_by'] ?? null;
             
-            if (empty($name) || empty($description)) {
-                $error = 'Nombre y descripción son obligatorios';
+            if (empty($name) || empty($description) || empty($sectionId)) {
+                $error = 'Nombre, descripción y sección son obligatorios';
             } else {
                 try {
                     $businessData = [
                         'name' => $name,
                         'description' => $description,
+                        'short_description' => $shortDescription,
                         'address' => $address,
                         'phone' => $phone,
                         'email' => $email,
                         'website' => $website,
                         'section_id' => $sectionId,
-                        'user_id' => $userId,
-                        'created_at' => date('Y-m-d H:i:s')
+                        'created_by' => $createdBy,
+                        'is_published' => 1,
+                        'status' => 1
                     ];
                     
                     // Manejar logo si se subió
                     if (!empty($_FILES['logo']['name'])) {
                         $logo = $this->handleLogoUpload($_FILES['logo']);
                         if ($logo) {
-                            $businessData['logo_url'] = $logo;
+                            $businessData['logo_path'] = $logo;
                         }
                     }
                     
@@ -509,6 +648,187 @@ class AdminController {
         }
         
         return null;
+    }
+    
+    public function businessEdit($segments = []) {
+        require_once __DIR__ . '/../seguridad.php';
+        verificarAdmin();
+        
+        $businessId = $segments[1] ?? null;
+        if (!$businessId) {
+            redirect(BASE_URL . 'admin/business-list');
+        }
+        
+        $business = $this->businessModel->findById($businessId);
+        if (!$business) {
+            redirect(BASE_URL . 'admin/business-list');
+        }
+        
+        $error = '';
+        $success = '';
+        
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $name = trim($_POST['name'] ?? '');
+            $description = trim($_POST['description'] ?? '');
+            $shortDescription = trim($_POST['short_description'] ?? '');
+            $address = trim($_POST['address'] ?? '');
+            $phone = trim($_POST['phone'] ?? '');
+            $email = trim($_POST['email'] ?? '');
+            $website = trim($_POST['website'] ?? '');
+            $sectionId = $_POST['section_id'] ?? null;
+            $createdBy = $_POST['created_by'] ?? null;
+            
+            if (empty($name) || empty($description) || empty($sectionId)) {
+                $error = 'Nombre, descripción y sección son obligatorios';
+            } else {
+                try {
+                    $updateData = [
+                        'name' => $name,
+                        'description' => $description,
+                        'short_description' => $shortDescription,
+                        'address' => $address,
+                        'phone' => $phone,
+                        'email' => $email,
+                        'website' => $website,
+                        'section_id' => $sectionId,
+                        'created_by' => $createdBy
+                    ];
+                    
+                    // Manejar nuevo logo si se subió
+                    if (!empty($_FILES['logo']['name'])) {
+                        $logo = $this->handleLogoUpload($_FILES['logo']);
+                        if ($logo) {
+                            $updateData['logo_path'] = $logo;
+                        }
+                    }
+                    
+                    $this->businessModel->update($businessId, $updateData);
+                    $success = 'Negocio actualizado exitosamente.';
+                    $business = $this->businessModel->findById($businessId); // Recargar datos
+                    
+                } catch (Exception $e) {
+                    $error = 'Error al actualizar el negocio: ' . $e->getMessage();
+                }
+            }
+        }
+        
+        // Obtener secciones y usuarios
+        $sections = $this->sectionModel->findAll();
+        $users = $this->userModel->findAll();
+        
+        $data = [
+            'title' => 'Editar Negocio',
+            'business' => $business,
+            'error' => $error,
+            'success' => $success,
+            'sections' => $sections,
+            'users' => $users
+        ];
+        
+        $this->render('admin/business-edit', $data);
+    }
+    
+    public function businessUpdate($segments = []) {
+        require_once __DIR__ . '/../seguridad.php';
+        verificarAdmin();
+        
+        header('Content-Type: application/json');
+        
+        $businessId = $segments[1] ?? null;
+        if (!$businessId) {
+            echo json_encode(['success' => false, 'message' => 'ID de negocio no válido']);
+            return;
+        }
+        
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['success' => false, 'message' => 'Método no permitido']);
+            return;
+        }
+        
+        $name = trim($_POST['name'] ?? '');
+        $description = trim($_POST['description'] ?? '');
+        $address = trim($_POST['address'] ?? '');
+        $phone = trim($_POST['phone'] ?? '');
+        $email = trim($_POST['email'] ?? '');
+        $website = trim($_POST['website'] ?? '');
+        $sectionId = $_POST['section_id'] ?? null;
+        
+        // Validaciones
+        if (empty($name)) {
+            echo json_encode(['success' => false, 'message' => 'El nombre del negocio es obligatorio']);
+            return;
+        }
+        
+        // Verificar si el nombre ya existe (excepto para este negocio)
+        $existingBusiness = $this->businessModel->findByName($name);
+        if ($existingBusiness && $existingBusiness['id'] != $businessId) {
+            echo json_encode(['success' => false, 'message' => 'Ya existe un negocio con ese nombre']);
+            return;
+        }
+        
+        try {
+            $updateData = [
+                'name' => $name,
+                'description' => $description,
+                'address' => $address,
+                'phone' => $phone,
+                'email' => $email,
+                'website' => $website,
+                'section_id' => $sectionId,
+                'updated_at' => date('Y-m-d H:i:s')
+            ];
+            
+            // Manejar logo si se subió uno nuevo
+            if (isset($_FILES['logo']) && $_FILES['logo']['error'] === UPLOAD_ERR_OK) {
+                $uploadDir = __DIR__ . '/../uploads/logos/';
+                if (!is_dir($uploadDir)) {
+                    mkdir($uploadDir, 0755, true);
+                }
+                
+                $fileName = time() . '_' . basename($_FILES['logo']['name']);
+                $uploadPath = $uploadDir . $fileName;
+                
+                if (move_uploaded_file($_FILES['logo']['tmp_name'], $uploadPath)) {
+                    $updateData['logo_path'] = 'uploads/logos/' . $fileName;
+                }
+            }
+            
+            $this->businessModel->update($businessId, $updateData);
+            echo json_encode(['success' => true, 'message' => 'Negocio actualizado correctamente']);
+            
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'message' => 'Error al actualizar: ' . $e->getMessage()]);
+        }
+    }
+    
+    public function businessDelete($segments = []) {
+        require_once __DIR__ . '/../seguridad.php';
+        verificarAdmin();
+        
+        $businessId = $segments[1] ?? null;
+        if (!$businessId) {
+            redirect(BASE_URL . 'admin/business-list');
+        }
+        
+        try {
+            // Obtener datos del negocio para eliminar archivos
+            $business = $this->businessModel->findById($businessId);
+            
+            // Eliminar archivo de logo si existe
+            if ($business && !empty($business['logo_path'])) {
+                $logoPath = __DIR__ . '/../' . $business['logo_path'];
+                if (file_exists($logoPath)) {
+                    unlink($logoPath);
+                }
+            }
+            
+            $this->businessModel->delete($businessId);
+            $_SESSION['success'] = 'Negocio eliminado exitosamente';
+        } catch (Exception $e) {
+            $_SESSION['error'] = 'Error al eliminar el negocio: ' . $e->getMessage();
+        }
+        
+        redirect(BASE_URL . 'admin/business-list');
     }
     
     private function render($view, $data = []) {

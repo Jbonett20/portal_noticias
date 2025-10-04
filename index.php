@@ -58,6 +58,8 @@ class Router {
                     $action = 'createUser';
                 } elseif ($segments[1] === 'edit-user' && isset($segments[2])) {
                     $action = 'editUser';
+                } elseif ($segments[1] === 'update-user' && isset($segments[2])) {
+                    $action = 'updateUser';
                 } elseif ($segments[1] === 'delete-user' && isset($segments[2])) {
                     $action = 'deleteUser';
                 } elseif ($segments[1] === 'news-list') {
@@ -66,12 +68,20 @@ class Router {
                     $action = 'newsCreate';
                 } elseif ($segments[1] === 'news-edit' && isset($segments[2])) {
                     $action = 'newsEdit';
+                } elseif ($segments[1] === 'news-update' && isset($segments[2])) {
+                    $action = 'newsUpdate';
                 } elseif ($segments[1] === 'news-delete' && isset($segments[2])) {
                     $action = 'newsDelete';
                 } elseif ($segments[1] === 'business-list') {
                     $action = 'businessList';
                 } elseif ($segments[1] === 'business-create') {
                     $action = 'businessCreate';
+                } elseif ($segments[1] === 'business-edit' && isset($segments[2])) {
+                    $action = 'businessEdit';
+                } elseif ($segments[1] === 'business-update' && isset($segments[2])) {
+                    $action = 'businessUpdate';
+                } elseif ($segments[1] === 'business-delete' && isset($segments[2])) {
+                    $action = 'businessDelete';
                 } else {
                     $action = 'index';
                 }

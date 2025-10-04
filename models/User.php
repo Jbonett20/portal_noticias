@@ -77,5 +77,9 @@ class User {
     public function count() {
         return $this->db->count('users');
     }
+    
+    public function findAll() {
+        return $this->db->fetchAll("SELECT * FROM users ORDER BY created_at DESC");
+    }
 }
 ?>

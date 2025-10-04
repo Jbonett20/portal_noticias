@@ -96,10 +96,11 @@ ob_start();
                             </td>
                             <td>
                                 <div class="btn-group btn-group-sm">
-                                    <a href="<?= BASE_URL ?>admin/edit-user/<?= $user['id'] ?>" 
-                                       class="btn btn-outline-primary" title="Editar">
+                                    <button class="btn btn-outline-primary" 
+                                            onclick="openEditModal(<?= $user['id'] ?>)" 
+                                            title="Editar">
                                         <i class="bi bi-pencil"></i>
-                                    </a>
+                                    </button>
                                     <?php if ($user['role'] != 1 && $user['role'] !== 'admin'): ?>
                                     <button class="btn btn-outline-danger" 
                                             onclick="confirmDelete(<?= $user['id'] ?>, '<?= htmlspecialchars($user['username']) ?>')"
@@ -146,7 +147,132 @@ ob_start();
     </div>
 </div>
 
+<!-- Modal de Edición de Usuario -->
+<div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="editUserModalLabel">
+                    <i class="bi bi-pencil me-2"></i>Editar Usuario
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="editUserForm" onsubmit="submitEditForm(event)">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="edit_username" class="form-label">Nombre de Usuario</label>
+                                <input type="text" class="form-control" id="edit_username" name="username" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="edit_email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="edit_email" name="email" required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="edit_role" class="form-label">Rol</label>
+                                <select class="form-control" id="edit_role" name="role" required>
+                                    <option value="user">Usuario</option>
+                                    <option value="editor">Editor</option>
+                                    <option value="admin">Administrador</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="edit_status" class="form-label">Estado</label>
+                                <select class="form-control" id="edit_status" name="status" required>
+                                    <option value="active">Activo</option>
+                                    <option value="inactive">Inactivo</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="edit_password" class="form-label">Nueva Contraseña</label>
+                        <input type="password" class="form-control" id="edit_password" name="password" 
+                               placeholder="Dejar en blanco para mantener la actual">
+                        <small class="text-muted">Dejar vacío para no cambiar la contraseña</small>
+                    </div>
+                    
+                    <input type="hidden" id="edit_user_id" name="user_id">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-lg me-1"></i>Guardar Cambios
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <script>
+// Datos de usuarios para el modal
+const usersData = <?= json_encode($users) ?>;
+
+function openEditModal(userId) {
+    const user = usersData.find(u => u.id == userId);
+    if (!user) {
+        alert('Usuario no encontrado');
+        return;
+    }
+    
+    // Llenar el formulario con los datos del usuario
+    document.getElementById('edit_user_id').value = user.id;
+    document.getElementById('edit_username').value = user.username;
+    document.getElementById('edit_email').value = user.email;
+    document.getElementById('edit_role').value = user.role;
+    document.getElementById('edit_status').value = user.status || 'active';
+    document.getElementById('edit_password').value = '';
+    
+    // Mostrar el modal
+    const modal = new bootstrap.Modal(document.getElementById('editUserModal'));
+    modal.show();
+}
+
+function submitEditForm(event) {
+    event.preventDefault();
+    
+    const formData = new FormData(event.target);
+    const userId = formData.get('user_id');
+    
+    // Enviar datos via fetch
+    fetch(`<?= BASE_URL ?>admin/update-user/${userId}`, {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Cerrar modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('editUserModal'));
+            modal.hide();
+            
+            // Mostrar mensaje de éxito
+            alert('Usuario actualizado correctamente');
+            
+            // Recargar la página
+            location.reload();
+        } else {
+            alert('Error: ' + (data.message || 'No se pudo actualizar el usuario'));
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error de conexión');
+    });
+}
+
 function confirmDelete(userId, username) {
     if (confirm(`¿Estás seguro de que quieres eliminar al usuario "${username}"?\n\nEsta acción no se puede deshacer.`)) {
         window.location.href = `<?= BASE_URL ?>admin/delete-user/${userId}`;

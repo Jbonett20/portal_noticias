@@ -46,6 +46,11 @@ class Business {
         return $this->db->fetch($sql, [$slug]);
     }
     
+    public function findByName($name) {
+        $sql = "SELECT * FROM businesses WHERE name = ?";
+        return $this->db->fetch($sql, [$name]);
+    }
+    
     public function getAll($limit = null, $offset = 0, $sectionId = null) {
         $sql = "SELECT b.*, s.title as section_title 
                 FROM businesses b
@@ -169,6 +174,10 @@ class Business {
                 LEFT JOIN users u ON b.created_by = u.id
                 ORDER BY b.created_at DESC";
         return $this->db->fetchAll($sql);
+    }
+    
+    public function findAll() {
+        return $this->db->fetchAll("SELECT * FROM businesses ORDER BY created_at DESC");
     }
     
     private function generateSlug($name) {
