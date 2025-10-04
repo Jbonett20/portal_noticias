@@ -10,15 +10,17 @@ class News {
         $newsData = [
             'title' => $data['title'],
             'content' => $data['content'],
-            'summary' => $data['excerpt'] ?? '',
+            'summary' => $data['summary'] ?? $data['excerpt'] ?? '',
             'slug' => $this->generateSlug($data['title']),
             'author_id' => $data['author_id'],
             'is_published' => ($data['status'] === 'published') ? 1 : 0,
             'published_at' => ($data['status'] === 'published') ? date('Y-m-d H:i:s') : null,
-            'featured_image' => null,
+            'featured_image' => $data['image_url'] ?? null,
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s')
         ];
+        
+        // Nota: section_id y business_id no están disponibles en la tabla actual
         
         return $this->db->insert('news', $newsData);
     }
@@ -121,11 +123,18 @@ class News {
         $updateData = [
             'title' => $data['title'],
             'content' => $data['content'],
-            'summary' => $data['excerpt'] ?? '',
+            'summary' => $data['summary'] ?? $data['excerpt'] ?? '',
             'is_published' => ($data['status'] === 'published') ? 1 : 0,
             'published_at' => ($data['status'] === 'published') ? date('Y-m-d H:i:s') : null,
             'updated_at' => date('Y-m-d H:i:s')
         ];
+        
+        // Agregar campos opcionales si están presentes y existen en la tabla
+        if (isset($data['image_url'])) {
+            $updateData['featured_image'] = $data['image_url'];
+        }
+        
+        // Nota: section_id y business_id no están disponibles en la tabla actual
         
         return $this->db->update('news', $updateData, 'id = ?', [$id]);
     }
@@ -204,6 +213,21 @@ class News {
     private function slugExists($slug) {
         $sql = "SELECT COUNT(*) FROM news WHERE slug = ?";
         return $this->db->queryFirstField($sql, [$slug]) > 0;
+    }
+    
+    // Método específico para el admin - obtener todas las noticias con detalles
+    public function getAllWithDetails() {
+        $sql = "SELECT n.*, 
+                       COALESCE(u.full_name, u.username, 'Admin') as author_name,
+                       '' as section_name,
+                       '' as business_name,
+                       n.summary as excerpt,
+                       CASE WHEN n.is_published = 1 THEN 'published' ELSE 'draft' END as status,
+                       n.featured_image as image_url
+                FROM news n
+                LEFT JOIN users u ON n.author_id = u.id 
+                ORDER BY n.created_at DESC";
+        return $this->db->fetchAll($sql);
     }
 }
 ?>

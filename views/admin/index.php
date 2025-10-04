@@ -7,47 +7,313 @@ $title = 'Panel de Administración - ' . SITE_NAME;
 ob_start();
 ?>
 
-<div class="container py-4">
+<div class="container-fluid py-4">
+    <!-- Header del Admin -->
     <div class="row mb-4">
         <div class="col">
-            <h1 class="h3 mb-0">
-                <i class="bi bi-gear"></i> Panel de Administración
-            </h1>
-            <p class="text-muted">Gestiona usuarios, negocios y contenido del portal</p>
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h2 mb-1">
+                        <i class="bi bi-shield-check text-danger"></i> Panel de Administración
+                    </h1>
+                    <p class="text-muted mb-0">Control total del portal de noticias</p>
+                </div>
+                <div class="badge bg-danger fs-6 px-3 py-2">
+                    <i class="bi bi-person-gear"></i> Administrador
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Estadísticas -->
+    <!-- Estadísticas Principales -->
     <div class="row mb-4">
-        <div class="col-md-3">
-            <div class="card text-center">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
                 <div class="card-body">
-                    <i class="bi bi-people" style="font-size: 2rem; color: #667eea;"></i>
-                    <h3 class="mt-2"><?= $stats['total_users'] ?></h3>
-                    <p class="text-muted mb-0">Usuarios Totales</p>
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-primary bg-gradient rounded-3 p-3">
+                                <i class="bi bi-people text-white" style="font-size: 1.5rem;"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h5 class="card-title mb-1"><?= $stats['total_users'] ?></h5>
+                            <p class="card-text text-muted mb-0">Usuarios Totales</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card text-center">
+        
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
                 <div class="card-body">
-                    <i class="bi bi-shop" style="font-size: 2rem; color: #28a745;"></i>
-                    <h3 class="mt-2"><?= $stats['total_businesses'] ?></h3>
-                    <p class="text-muted mb-0">Negocios</p>
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-success bg-gradient rounded-3 p-3">
+                                <i class="bi bi-shop text-white" style="font-size: 1.5rem;"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h5 class="card-title mb-1"><?= $stats['total_businesses'] ?></h5>
+                            <p class="card-text text-muted mb-0">Negocios</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card text-center">
+        
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
                 <div class="card-body">
-                    <i class="bi bi-newspaper" style="font-size: 2rem; color: #ffc107;"></i>
-                    <h3 class="mt-2"><?= $stats['total_news'] ?></h3>
-                    <p class="text-muted mb-0">Noticias</p>
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-warning bg-gradient rounded-3 p-3">
+                                <i class="bi bi-newspaper text-white" style="font-size: 1.5rem;"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h5 class="card-title mb-1"><?= $stats['total_news'] ?></h5>
+                            <p class="card-text text-muted mb-0">Noticias</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card text-center">
+        
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-info bg-gradient rounded-3 p-3">
+                                <i class="bi bi-grid-3x3-gap text-white" style="font-size: 1.5rem;"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h5 class="card-title mb-1"><?= isset($stats['total_sections']) ? $stats['total_sections'] : '20' ?></h5>
+                            <p class="card-text text-muted mb-0">Secciones</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Acciones Rápidas -->
+    <div class="row mb-4">
+        <div class="col">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-transparent border-0 py-3">
+                    <h5 class="mb-0">
+                        <i class="bi bi-lightning"></i> Acciones Rápidas
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <!-- Crear Usuario -->
+                        <div class="col-lg-4 col-md-6">
+                            <div class="d-grid">
+                                <a href="<?= BASE_URL ?>admin/create-user" class="btn btn-primary btn-lg">
+                                    <i class="bi bi-person-plus me-2"></i>Crear Usuario
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <!-- Crear Negocio -->
+                        <div class="col-lg-4 col-md-6">
+                            <div class="d-grid">
+                                <a href="<?= BASE_URL ?>dashboard/business/create" class="btn btn-success btn-lg">
+                                    <i class="bi bi-shop me-2"></i>Crear Negocio
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <!-- Crear Noticia -->
+                        <div class="col-lg-4 col-md-6">
+                            <div class="d-grid">
+                                <a href="<?= BASE_URL ?>news/create" class="btn btn-warning btn-lg">
+                                    <i class="bi bi-newspaper me-2"></i>Crear Noticia
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gestión Completa -->
+    <div class="row">
+        <!-- Gestión de Usuarios -->
+        <div class="col-xl-4 col-lg-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-primary text-white">
+                    <h6 class="mb-0">
+                        <i class="bi bi-people-fill me-2"></i>Gestión de Usuarios
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        <a href="<?= BASE_URL ?>admin/users" class="list-group-item list-group-item-action border-0">
+                            <i class="bi bi-eye me-2 text-primary"></i>Ver Todos los Usuarios
+                        </a>
+                        <a href="<?= BASE_URL ?>admin/create-user" class="list-group-item list-group-item-action border-0">
+                            <i class="bi bi-person-plus me-2 text-success"></i>Crear Nuevo Usuario
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action border-0" onclick="showUsersByRole()">
+                            <i class="bi bi-funnel me-2 text-info"></i>Filtrar por Rol
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action border-0" onclick="exportUsers()">
+                            <i class="bi bi-download me-2 text-warning"></i>Exportar Usuarios
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gestión de Negocios -->
+        <div class="col-xl-4 col-lg-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-success text-white">
+                    <h6 class="mb-0">
+                        <i class="bi bi-shop me-2"></i>Gestión de Negocios
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        <a href="<?= BASE_URL ?>business" class="list-group-item list-group-item-action border-0">
+                            <i class="bi bi-eye me-2 text-primary"></i>Ver Todos los Negocios
+                        </a>
+                        <a href="<?= BASE_URL ?>dashboard/business/create" class="list-group-item list-group-item-action border-0">
+                            <i class="bi bi-plus-circle me-2 text-success"></i>Crear Nuevo Negocio
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action border-0" onclick="managePendingBusinesses()">
+                            <i class="bi bi-clock me-2 text-warning"></i>Negocios Pendientes
+                        </a>
+                        <a href="<?= BASE_URL ?>section" class="list-group-item list-group-item-action border-0">
+                            <i class="bi bi-grid-3x3-gap me-2 text-info"></i>Gestionar Secciones
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gestión de Noticias -->
+        <div class="col-xl-4 col-lg-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-warning text-white">
+                    <h6 class="mb-0">
+                        <i class="bi bi-newspaper me-2"></i>Gestión de Noticias
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        <a href="<?= BASE_URL ?>news" class="list-group-item list-group-item-action border-0">
+                            <i class="bi bi-eye me-2 text-primary"></i>Ver Todas las Noticias
+                        </a>
+                        <a href="<?= BASE_URL ?>news/create" class="list-group-item list-group-item-action border-0">
+                            <i class="bi bi-plus-circle me-2 text-success"></i>Crear Nueva Noticia
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action border-0" onclick="manageNewsImages()">
+                            <i class="bi bi-image me-2 text-info"></i>Gestionar Imágenes
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action border-0" onclick="manageNewsVideos()">
+                            <i class="bi bi-play-circle me-2 text-danger"></i>Gestionar Videos
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Herramientas Avanzadas -->
+    <div class="row">
+        <div class="col">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-tools me-2"></i>Herramientas de Administración
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-lg-3 col-md-6">
+                            <button class="btn btn-outline-primary w-100" onclick="backupDatabase()">
+                                <i class="bi bi-download me-2"></i>Respaldar BD
+                            </button>
+                        </div>
+                        <div class="col-lg-3 col-md-6">
+                            <button class="btn btn-outline-info w-100" onclick="viewSystemLogs()">
+                                <i class="bi bi-file-text me-2"></i>Ver Logs
+                            </button>
+                        </div>
+                        <div class="col-lg-3 col-md-6">
+                            <button class="btn btn-outline-warning w-100" onclick="manageFiles()">
+                                <i class="bi bi-folder me-2"></i>Archivos
+                            </button>
+                        </div>
+                        <div class="col-lg-3 col-md-6">
+                            <button class="btn btn-outline-success w-100" onclick="generateReports()">
+                                <i class="bi bi-graph-up me-2"></i>Reportes
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Funciones JavaScript para acciones avanzadas
+function showUsersByRole() {
+    alert('Funcionalidad: Filtrar usuarios por rol (Admin, Author, User)');
+    // Aquí implementarías la lógica para filtrar usuarios
+}
+
+function exportUsers() {
+    alert('Funcionalidad: Exportar lista de usuarios a CSV/Excel');
+    // Aquí implementarías la exportación
+}
+
+function managePendingBusinesses() {
+    alert('Funcionalidad: Gestionar negocios pendientes de aprobación');
+    // Aquí implementarías la gestión de negocios pendientes
+}
+
+function manageNewsImages() {
+    alert('Funcionalidad: Gestionar imágenes de noticias');
+    // Aquí implementarías la gestión de imágenes
+}
+
+function manageNewsVideos() {
+    alert('Funcionalidad: Gestionar videos de noticias');
+    // Aquí implementarías la gestión de videos
+}
+
+function backupDatabase() {
+    if(confirm('¿Estás seguro de que quieres crear un respaldo de la base de datos?')) {
+        alert('Funcionalidad: Crear respaldo de base de datos');
+        // Aquí implementarías el respaldo
+    }
+}
+
+function viewSystemLogs() {
+    alert('Funcionalidad: Ver logs del sistema');
+    // Aquí implementarías la visualización de logs
+}
+
+function manageFiles() {
+    alert('Funcionalidad: Gestionar archivos subidos');
+    // Aquí implementarías la gestión de archivos
+}
+
+function generateReports() {
+    alert('Funcionalidad: Generar reportes estadísticos');
+    // Aquí implementarías la generación de reportes
+}
+</script>
                 <div class="card-body">
                     <i class="bi bi-shield-check" style="font-size: 2rem; color: #dc3545;"></i>
                     <h3 class="mt-2">Admin</h3>
