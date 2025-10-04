@@ -76,5 +76,9 @@ class Section {
         
         return $this->db->fetchAll($sql, [$sectionId]);
     }
+    
+    public function findAll() {
+        return $this->db->fetchAll("SELECT * FROM sections ORDER BY sort_order ASC, title ASC");
+    }
 }
 ?>

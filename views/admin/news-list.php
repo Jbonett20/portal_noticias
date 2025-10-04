@@ -300,11 +300,11 @@ ob_start();
                                             </a>
                                             
                                             <!-- Editar -->
-                                            <a href="index.php?controller=news&action=edit&id=<?php echo $noticia['id']; ?>" 
-                                               class="btn btn-outline-warning" 
-                                               title="Editar noticia">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
+                                            <button class="btn btn-outline-warning" 
+                                                    onclick="openEditNewsModal(<?= $noticia['id'] ?>)"
+                                                    title="Editar noticia">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
                                             
                                             <!-- Toggle Status -->
                                             <button class="btn btn-outline-<?php echo $noticia['status'] === 'published' ? 'secondary' : 'success'; ?> btn-toggle-status" 
@@ -387,6 +387,79 @@ ob_start();
         </div>
     </div>
 
+    <!-- Modal de Edición de Noticia -->
+    <div class="modal fade" id="editNewsModal" tabindex="-1" aria-labelledby="editNewsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title" id="editNewsModalLabel">
+                        <i class="bi bi-pencil me-2"></i>Editar Noticia
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="editNewsForm" onsubmit="submitEditNewsForm(event)">
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="mb-3">
+                                    <label for="edit_news_title" class="form-label">Título</label>
+                                    <input type="text" class="form-control" id="edit_news_title" name="title" required>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="edit_news_summary" class="form-label">Resumen</label>
+                                    <textarea class="form-control" id="edit_news_summary" name="summary" rows="3"></textarea>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="edit_news_content" class="form-label">Contenido</label>
+                                    <textarea class="form-control" id="edit_news_content" name="content" rows="8" required></textarea>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="edit_news_section" class="form-label">Sección</label>
+                                    <select class="form-control" id="edit_news_section" name="section_id" required>
+                                        <?php foreach ($sections as $section): ?>
+                                        <option value="<?= $section['id'] ?>"><?= htmlspecialchars($section['name']) ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="edit_news_status" class="form-label">Estado</label>
+                                    <select class="form-control" id="edit_news_status" name="status" required>
+                                        <option value="draft">Borrador</option>
+                                        <option value="published">Publicado</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="edit_news_image" class="form-label">Nueva Imagen (opcional)</label>
+                                    <input type="file" class="form-control" id="edit_news_image" name="image" accept="image/*">
+                                    <small class="text-muted">Dejar vacío para mantener la imagen actual</small>
+                                </div>
+                                
+                                <div class="mb-3" id="current_image_preview">
+                                    <!-- Se mostrará la imagen actual aquí -->
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <input type="hidden" id="edit_news_id" name="news_id">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-warning">
+                            <i class="bi bi-check-lg me-1"></i>Guardar Cambios
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal de confirmación para eliminar -->
     <div class="modal fade" id="deleteModal" tabindex="-1">
         <div class="modal-dialog">
@@ -408,6 +481,73 @@ ob_start();
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // Datos de noticias para el modal
+        const newsData = <?= json_encode($allNews ?? []) ?>;
+        
+        function openEditNewsModal(newsId) {
+            const news = newsData.find(n => n.id == newsId);
+            if (!news) {
+                alert('Noticia no encontrada');
+                return;
+            }
+            
+            // Llenar el formulario con los datos de la noticia
+            document.getElementById('edit_news_id').value = news.id;
+            document.getElementById('edit_news_title').value = news.title;
+            document.getElementById('edit_news_summary').value = news.summary || '';
+            document.getElementById('edit_news_content').value = news.content;
+            document.getElementById('edit_news_section').value = news.section_id;
+            document.getElementById('edit_news_status').value = news.status;
+            
+            // Mostrar imagen actual si existe
+            const imagePreview = document.getElementById('current_image_preview');
+            if (news.image) {
+                imagePreview.innerHTML = `
+                    <label class="form-label">Imagen Actual:</label><br>
+                    <img src="${news.image}" alt="Imagen actual" style="max-width: 200px; max-height: 150px;" class="img-thumbnail">
+                `;
+            } else {
+                imagePreview.innerHTML = '<small class="text-muted">Sin imagen actual</small>';
+            }
+            
+            // Mostrar el modal
+            const modal = new bootstrap.Modal(document.getElementById('editNewsModal'));
+            modal.show();
+        }
+        
+        function submitEditNewsForm(event) {
+            event.preventDefault();
+            
+            const formData = new FormData(event.target);
+            const newsId = formData.get('news_id');
+            
+            // Enviar datos via fetch
+            fetch(`<?= BASE_URL ?>admin/news-update/${newsId}`, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Cerrar modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('editNewsModal'));
+                    modal.hide();
+                    
+                    // Mostrar mensaje de éxito
+                    alert('Noticia actualizada correctamente');
+                    
+                    // Recargar la página
+                    location.reload();
+                } else {
+                    alert('Error: ' + (data.message || 'No se pudo actualizar la noticia'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error de conexión');
+            });
+        }
+        
         // Toggle status
         document.addEventListener('DOMContentLoaded', function() {
             const toggleButtons = document.querySelectorAll('.btn-toggle-status');

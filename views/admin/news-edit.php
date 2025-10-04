@@ -1,23 +1,11 @@
-<?php 
-require_once 'seguridad.php';
-verificarEditor();
+<?php
+// Verificar permisos de administrador
+require_once __DIR__ . '/../../seguridad.php';
+verificarAdmin();
+
+$title = 'Editar Noticia - ' . SITE_NAME;
+ob_start();
 ?>
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Editar Noticia - Admin</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        .form-floating label {
-            padding-left: 1rem;
-        }
-        .image-preview {
-            max-width: 200px;
-            max-height: 150px;
-            border-radius: 0.5rem;
             margin: 0.5rem;
             border: 2px solid #dee2e6;
         }
@@ -515,5 +503,7 @@ verificarEditor();
             updateCharCounter('meta_description', 160);
         });
     </script>
-</body>
-</html>
+<?php
+$content = ob_get_clean();
+include dirname(__DIR__) . '/layout/main.php';
+?>

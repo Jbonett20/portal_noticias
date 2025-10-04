@@ -115,10 +115,11 @@ ob_start();
                                        class="btn btn-outline-info" title="Ver" target="_blank">
                                         <i class="bi bi-eye"></i>
                                     </a>
-                                    <a href="<?= BASE_URL ?>admin/business-edit/<?= $business['id'] ?>" 
-                                       class="btn btn-outline-primary" title="Editar">
+                                    <button class="btn btn-outline-primary" 
+                                            onclick="openEditBusinessModal(<?= $business['id'] ?>)" 
+                                            title="Editar">
                                         <i class="bi bi-pencil"></i>
-                                    </a>
+                                    </button>
                                     <button class="btn btn-outline-danger" 
                                             onclick="confirmDelete(<?= $business['id'] ?>, '<?= htmlspecialchars($business['name']) ?>')"
                                             title="Eliminar">
@@ -174,7 +175,165 @@ ob_start();
     <?php endif; ?>
 </div>
 
+<!-- Modal de Edición de Negocio -->
+<div class="modal fade" id="editBusinessModal" tabindex="-1" aria-labelledby="editBusinessModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title" id="editBusinessModalLabel">
+                    <i class="bi bi-pencil me-2"></i>Editar Negocio
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="editBusinessForm" onsubmit="submitEditBusinessForm(event)" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="edit_business_name" class="form-label">Nombre del Negocio</label>
+                                <input type="text" class="form-control" id="edit_business_name" name="name" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="edit_business_section" class="form-label">Sección</label>
+                                <select class="form-control" id="edit_business_section" name="section_id" required>
+                                    <?php foreach ($sections as $section): ?>
+                                    <option value="<?= $section['id'] ?>"><?= htmlspecialchars($section['name']) ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="edit_business_description" class="form-label">Descripción</label>
+                        <textarea class="form-control" id="edit_business_description" name="description" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="edit_business_address" class="form-label">Dirección</label>
+                                <input type="text" class="form-control" id="edit_business_address" name="address">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="edit_business_phone" class="form-label">Teléfono</label>
+                                <input type="text" class="form-control" id="edit_business_phone" name="phone">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="edit_business_email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="edit_business_email" name="email">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="edit_business_website" class="form-label">Sitio Web</label>
+                                <input type="url" class="form-control" id="edit_business_website" name="website">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="edit_business_logo" class="form-label">Nuevo Logo (opcional)</label>
+                        <input type="file" class="form-control" id="edit_business_logo" name="logo" accept="image/*">
+                        <small class="text-muted">Dejar vacío para mantener el logo actual</small>
+                    </div>
+                    
+                    <div class="mb-3" id="current_logo_preview">
+                        <!-- Se mostrará el logo actual aquí -->
+                    </div>
+                    
+                    <input type="hidden" id="edit_business_id" name="business_id">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-info text-white">
+                        <i class="bi bi-check-lg me-1"></i>Guardar Cambios
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <script>
+// Datos de negocios para el modal
+const businessesData = <?= json_encode($businesses) ?>;
+
+function openEditBusinessModal(businessId) {
+    const business = businessesData.find(b => b.id == businessId);
+    if (!business) {
+        alert('Negocio no encontrado');
+        return;
+    }
+    
+    // Llenar el formulario con los datos del negocio
+    document.getElementById('edit_business_id').value = business.id;
+    document.getElementById('edit_business_name').value = business.name;
+    document.getElementById('edit_business_section').value = business.section_id;
+    document.getElementById('edit_business_description').value = business.description || '';
+    document.getElementById('edit_business_address').value = business.address || '';
+    document.getElementById('edit_business_phone').value = business.phone || '';
+    document.getElementById('edit_business_email').value = business.email || '';
+    document.getElementById('edit_business_website').value = business.website || '';
+    
+    // Mostrar logo actual si existe
+    const logoPreview = document.getElementById('current_logo_preview');
+    if (business.logo_path) {
+        logoPreview.innerHTML = `
+            <label class="form-label">Logo Actual:</label><br>
+            <img src="${business.logo_path}" alt="Logo actual" style="max-width: 150px; max-height: 100px;" class="img-thumbnail">
+        `;
+    } else {
+        logoPreview.innerHTML = '<small class="text-muted">Sin logo actual</small>';
+    }
+    
+    // Mostrar el modal
+    const modal = new bootstrap.Modal(document.getElementById('editBusinessModal'));
+    modal.show();
+}
+
+function submitEditBusinessForm(event) {
+    event.preventDefault();
+    
+    const formData = new FormData(event.target);
+    const businessId = formData.get('business_id');
+    
+    // Enviar datos via fetch
+    fetch(`<?= BASE_URL ?>admin/business-update/${businessId}`, {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Cerrar modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('editBusinessModal'));
+            modal.hide();
+            
+            // Mostrar mensaje de éxito
+            alert('Negocio actualizado correctamente');
+            
+            // Recargar la página
+            location.reload();
+        } else {
+            alert('Error: ' + (data.message || 'No se pudo actualizar el negocio'));
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error de conexión');
+    });
+}
+
 function confirmDelete(businessId, name) {
     if (confirm(`¿Estás seguro de que quieres eliminar el negocio "${name}"?\n\nEsta acción no se puede deshacer y eliminará todas las noticias asociadas.`)) {
         window.location.href = `<?= BASE_URL ?>admin/business-delete/${businessId}`;
