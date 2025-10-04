@@ -367,14 +367,7 @@
                 </ul>
                 
                 <div class="d-flex align-items-center">
-                    <!-- Buscador -->
-                    <form class="d-flex me-3" action="<?= BASE_URL ?>search" method="GET">
-                        <input class="form-control form-control-sm me-1" type="search" name="q" 
-                               placeholder="Buscar..." value="<?= $_GET['q'] ?? '' ?>">
-                        <button class="btn btn-outline-light btn-sm" type="submit">
-                            <i class="bi bi-search"></i>
-                        </button>
-                    </form>
+                    <!-- Buscador eliminado -->
                     
                     <?php if (isLoggedIn()): ?>
                         <div class="dropdown">

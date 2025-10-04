@@ -15,15 +15,7 @@ ob_start();
                         <i class="bi bi-box-arrow-in-right" style="font-size: 3rem; color: #667eea;"></i>
                         <h2 class="h4 mt-3">Login</h2>
                         <p class="text-muted">Accede a tu cuenta para gestionar tu negocio</p>
-                        
-                        <div class="alert alert-info">
-                            <strong><i class="bi bi-info-circle"></i> Usuarios de Prueba:</strong><br>
-                            <small>
-                                <strong>carlos_pizza</strong> / password123<br>
-                                <strong>maria_burger</strong> / password123<br>
-                                <strong>admin</strong> / password123
-                            </small>
-                        </div>
+                    
                     </div>
 
                     <?php if (!empty($error)): ?>
