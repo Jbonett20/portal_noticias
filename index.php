@@ -47,8 +47,34 @@ class Router {
                 $controller = 'AuthController';
                 $action = 'logout';
             } elseif ($segments[0] === 'admin') {
-                $controller = isset($segments[1]) ? ucfirst($segments[1]) . 'Controller' : 'AdminController';
-                $action = isset($segments[2]) ? $segments[2] : 'index';
+                $controller = 'AdminController';
+                
+                // Determinar la acción basada en los segmentos de la URL
+                if (!isset($segments[1])) {
+                    $action = 'index';
+                } elseif ($segments[1] === 'users') {
+                    $action = 'users';
+                } elseif ($segments[1] === 'create-user') {
+                    $action = 'createUser';
+                } elseif ($segments[1] === 'edit-user' && isset($segments[2])) {
+                    $action = 'editUser';
+                } elseif ($segments[1] === 'delete-user' && isset($segments[2])) {
+                    $action = 'deleteUser';
+                } elseif ($segments[1] === 'news-list') {
+                    $action = 'newsList';
+                } elseif ($segments[1] === 'news-create') {
+                    $action = 'newsCreate';
+                } elseif ($segments[1] === 'news-edit' && isset($segments[2])) {
+                    $action = 'newsEdit';
+                } elseif ($segments[1] === 'news-delete' && isset($segments[2])) {
+                    $action = 'newsDelete';
+                } elseif ($segments[1] === 'business-list') {
+                    $action = 'businessList';
+                } elseif ($segments[1] === 'business-create') {
+                    $action = 'businessCreate';
+                } else {
+                    $action = 'index';
+                }
             } elseif ($segments[0] === 'dashboard') {
                 $controller = 'DashboardController';
                 if (isset($segments[1])) {

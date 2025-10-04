@@ -1,23 +1,11 @@
-<?php 
-require_once 'seguridad.php';
-verificarEditor();
+<?php
+// Verificar permisos de administrador
+require_once __DIR__ . '/../../seguridad.php';
+verificarAdmin();
+
+$title = 'Gestionar Noticias - ' . SITE_NAME;
+ob_start();
 ?>
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestión de Noticias - Admin</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        .status-badge {
-            padding: 0.375rem 0.75rem;
-            border-radius: 1rem;
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
         .status-published { background-color: #d4edda; color: #155724; }
         .status-draft { background-color: #fff3cd; color: #856404; }
         .status-archived { background-color: #f8d7da; color: #721c24; }
@@ -484,5 +472,8 @@ verificarEditor();
             }
         });
     </script>
-</body>
-</html>
+
+<?php
+$content = ob_get_clean();
+include dirname(__DIR__) . '/layout/main.php';
+?>

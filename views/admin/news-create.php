@@ -1,53 +1,11 @@
-<?php 
-require_once 'seguridad.php';
-verificarEditor();
+<?php
+// Verificar permisos de administrador
+require_once __DIR__ . '/../../seguridad.php';
+verificarAdmin();
+
+$title = 'Crear Noticia - ' . SITE_NAME;
+ob_start();
 ?>
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crear Noticia - Admin</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        .form-floating label {
-            padding-left: 1rem;
-        }
-        .image-preview {
-            max-width: 200px;
-            max-height: 150px;
-            border-radius: 0.5rem;
-            margin: 0.5rem;
-            border: 2px solid #dee2e6;
-        }
-        .image-preview-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-            margin-top: 1rem;
-        }
-        .preview-item {
-            position: relative;
-            display: inline-block;
-        }
-        .remove-image {
-            position: absolute;
-            top: -8px;
-            right: -8px;
-            background: #dc3545;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            font-size: 12px;
-            cursor: pointer;
-        }
-        .file-drop-zone {
-            border: 2px dashed #dee2e6;
-            border-radius: 0.5rem;
-            padding: 2rem;
             text-align: center;
             background: #f8f9fa;
             transition: all 0.3s ease;
@@ -441,5 +399,8 @@ verificarEditor();
             this.style.height = this.scrollHeight + 'px';
         });
     </script>
-</body>
-</html>
+
+<?php
+$content = ob_get_clean();
+include dirname(__DIR__) . '/layout/main.php';
+?>

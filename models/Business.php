@@ -158,6 +158,19 @@ class Business {
         return $this->db->insert('business_images', $imageData);
     }
     
+    // Método específico para el admin - obtener todos los negocios con detalles
+    public function getAllWithDetails() {
+        $sql = "SELECT b.*, 
+                       s.title as section_name,
+                       u.full_name as owner_name,
+                       0 as news_count
+                FROM businesses b
+                LEFT JOIN sections s ON b.section_id = s.id
+                LEFT JOIN users u ON b.created_by = u.id
+                ORDER BY b.created_at DESC";
+        return $this->db->fetchAll($sql);
+    }
+    
     private function generateSlug($name) {
         $slug = strtolower(trim($name));
         $slug = preg_replace('/[^a-z0-9-]/', '-', $slug);
