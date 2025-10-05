@@ -58,7 +58,7 @@ class Router {
                     $action = 'createUser';
                 } elseif ($segments[1] === 'edit-user' && isset($segments[2])) {
                     $action = 'editUser';
-                } elseif ($segments[1] === 'update-user' && isset($segments[2])) {
+                } elseif ($segments[1] === 'update-user') {
                     $action = 'updateUser';
                 } elseif ($segments[1] === 'delete-user' && isset($segments[2])) {
                     $action = 'deleteUser';
