@@ -17,6 +17,7 @@ class Business {
             'vision' => $data['vision'] ?? null,
             'logo_path' => $data['logo_path'] ?? null,
             'website' => $data['website'] ?? null,
+            'email' => $data['email'] ?? null,
             'phone' => $data['phone'] ?? null,
             'address' => $data['address'] ?? null,
             'is_published' => $data['is_published'] ?? 1,

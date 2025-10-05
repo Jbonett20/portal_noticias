@@ -563,10 +563,12 @@ class AdminController {
         verificarAdmin();
         
         $businesses = $this->businessModel->getAllWithDetails();
+        $sections = $this->sectionModel->findAll();
         
         $data = [
             'title' => 'Gestionar Negocios',
-            'businesses' => $businesses
+            'businesses' => $businesses,
+            'sections' => $sections
         ];
         
         $this->render('admin/business-list', $data);
@@ -588,10 +590,10 @@ class AdminController {
             $email = trim($_POST['email'] ?? '');
             $website = trim($_POST['website'] ?? '');
             $sectionId = $_POST['section_id'] ?? null;
-            $createdBy = $_POST['created_by'] ?? null;
+            $createdBy = getCurrentUser()['id']; // Usar el usuario actual como creador
             
             if (empty($name) || empty($description) || empty($sectionId)) {
-                $error = 'Nombre, descripción y sección son obligatorios';
+                $_SESSION['error'] = 'Nombre, descripción y sección son obligatorios';
             } else {
                 try {
                     $businessData = [
@@ -617,19 +619,19 @@ class AdminController {
                     }
                     
                     $businessId = $this->businessModel->create($businessData);
-                    $success = 'Negocio creado exitosamente.';
-                    
-                    // Redirigir después de crear
-                    $_SESSION['success'] = $success;
-                    redirect(BASE_URL . 'admin/business-list');
+                    $_SESSION['success'] = 'Negocio creado exitosamente';
                     
                 } catch (Exception $e) {
-                    $error = 'Error al crear el negocio: ' . $e->getMessage();
+                    $_SESSION['error'] = 'Error al crear el negocio: ' . $e->getMessage();
                 }
             }
+            
+            // Siempre redirigir a la lista de negocios después de POST
+            redirect(BASE_URL . 'admin/business-list');
+            return;
         }
         
-        // Obtener secciones y usuarios
+        // Obtener secciones y usuarios para el formulario tradicional
         $sections = $this->sectionModel->findAll();
         $users = $this->userModel->findAll();
         

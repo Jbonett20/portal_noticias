@@ -64,11 +64,15 @@ class DashboardController {
             ];
         }
         
+        // Obtener secciones para el modal de crear negocio
+        $sections = $this->db->fetchAll("SELECT * FROM sections ORDER BY sort_order ASC, title ASC");
+        
         $data = [
             'title' => 'Panel de Control',
             'user' => $user,
             'businesses' => $businesses,
-            'stats' => $stats
+            'stats' => $stats,
+            'sections' => $sections
         ];
         
         $this->render('dashboard/index', $data);
