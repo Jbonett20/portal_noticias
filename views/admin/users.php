@@ -124,23 +124,23 @@ ob_start();
             <div class="card text-center">
                 <div class="card-body">
                     <h5 class="text-danger">Administradores</h5>
-                    <h3><?= count(array_filter($users, fn($u) => $u['role'] === 'admin')) ?></h3>
+                    <h3><?= count(array_filter($users, fn($u) => $u['role'] == 1 || $u['role'] === 'admin')) ?></h3>
                 </div>
             </div>
         </div>
         <div class="col-md-4">
             <div class="card text-center">
                 <div class="card-body">
-                    <h5 class="text-success">Propietarios</h5>
-                    <h3><?= count(array_filter($users, fn($u) => $u['role'] === 'author')) ?></h3>
+                    <h5 class="text-success">Editores</h5>
+                    <h3><?= count(array_filter($users, fn($u) => $u['role'] == 2 || $u['role'] === 'editor')) ?></h3>
                 </div>
             </div>
         </div>
         <div class="col-md-4">
             <div class="card text-center">
                 <div class="card-body">
-                    <h5 class="text-secondary">Usuarios Básicos</h5>
-                    <h3><?= count(array_filter($users, fn($u) => $u['role'] === 'user')) ?></h3>
+                    <h5 class="text-secondary">Usuarios</h5>
+                    <h3><?= count(array_filter($users, fn($u) => $u['role'] == 3 || $u['role'] === 'user' || (!in_array($u['role'], [1, 2, 'admin', 'editor'])))) ?></h3>
                 </div>
             </div>
         </div>
@@ -238,6 +238,8 @@ function openEditModal(userId) {
         roleValue = 'admin';
     } else if (user.role == 2 || user.role === 'editor') {
         roleValue = 'editor';
+    } else {
+        roleValue = 'user'; // rol 3 o cualquier otro valor
     }
     document.getElementById('edit_role').value = roleValue;
     
@@ -267,7 +269,9 @@ function getRoleBadgeColor($role) {
             return 'danger';
         case 2:
         case 'editor': 
-            return 'success';
+            return 'warning';
+        case 3:
+        case 'user':
         default: 
             return 'secondary';
     }
@@ -281,6 +285,8 @@ function getRoleName($role) {
         case 2:
         case 'editor': 
             return 'Editor';
+        case 3:
+        case 'user':
         default: 
             return 'Usuario';
     }

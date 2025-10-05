@@ -240,13 +240,13 @@ class AdminController {
             $isActive = isset($_POST['status']) && $_POST['status'] === 'active' ? 1 : 0;
             
             // Convertir rol string a número
-            $role = 'user'; // valor por defecto
+            $role = 3; // valor por defecto para usuario básico
             if ($roleString === 'admin') {
                 $role = 1;
             } elseif ($roleString === 'editor') {
                 $role = 2;
             } else {
-                $role = 'user'; // mantenemos 'user' como string para compatibilidad
+                $role = 3; // usuario básico
             }
             
             // Validaciones

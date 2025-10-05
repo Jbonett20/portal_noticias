@@ -103,8 +103,8 @@ ob_start();
                                         <option value="user" <?= ($_POST['role'] ?? '') === 'user' ? 'selected' : '' ?>>
                                             Usuario Básico (Solo lectura)
                                         </option>
-                                        <option value="author" <?= ($_POST['role'] ?? '') === 'author' ? 'selected' : '' ?>>
-                                            Propietario de Negocio
+                                        <option value="editor" <?= ($_POST['role'] ?? '') === 'editor' ? 'selected' : '' ?>>
+                                            Editor/Propietario de Negocio
                                         </option>
                                         <option value="admin" <?= ($_POST['role'] ?? '') === 'admin' ? 'selected' : '' ?>>
                                             Administrador
@@ -136,7 +136,7 @@ ob_start();
                             <strong>Información sobre roles:</strong>
                             <ul class="mb-0 mt-2">
                                 <li><strong>Usuario Básico:</strong> Solo puede ver contenido público</li>
-                                <li><strong>Propietario:</strong> Puede gestionar su negocio y publicar noticias</li>
+                                <li><strong>Editor:</strong> Puede gestionar su negocio y publicar noticias</li>
                                 <li><strong>Administrador:</strong> Control total del sistema</li>
                             </ul>
                         </div>
@@ -160,7 +160,7 @@ ob_start();
 // Mostrar/ocultar campo de negocio según el rol seleccionado
 document.getElementById('role').addEventListener('change', function() {
     const businessField = document.getElementById('business_id').closest('.mb-3');
-    if (this.value === 'author') {
+    if (this.value === 'editor') {
         businessField.style.display = 'block';
     } else {
         businessField.style.display = 'none';

@@ -7,12 +7,22 @@ class User {
     }
     
     public function create($data) {
+        // Convertir rol string a número
+        $role = $data['role'] ?? 'user';
+        if ($role === 'admin') {
+            $role = 1;
+        } elseif ($role === 'editor') {
+            $role = 2;
+        } else {
+            $role = 3; // usuario básico
+        }
+        
         $userData = [
             'username' => $data['username'],
             'email' => $data['email'],
             'password_hash' => password_hash($data['password'], PASSWORD_DEFAULT),
             'full_name' => $data['full_name'],
-            'role' => $data['role'] ?? 2,
+            'role' => $role,
             'business_id' => $data['business_id'] ?? null
         ];
         
