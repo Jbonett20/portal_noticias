@@ -157,7 +157,7 @@ ob_start();
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form id="editUserForm" onsubmit="submitEditForm(event)">
+            <form id="editUserForm" action="index.php?controller=admin&action=updateUser" method="POST">
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-md-6">
@@ -231,46 +231,22 @@ function openEditModal(userId) {
     document.getElementById('edit_user_id').value = user.id;
     document.getElementById('edit_username').value = user.username;
     document.getElementById('edit_email').value = user.email;
-    document.getElementById('edit_role').value = user.role;
-    document.getElementById('edit_status').value = user.status || 'active';
+    
+    // Convertir rol numérico a string
+    let roleValue = 'user'; // valor por defecto
+    if (user.role == 1 || user.role === 'admin') {
+        roleValue = 'admin';
+    } else if (user.role == 2 || user.role === 'editor') {
+        roleValue = 'editor';
+    }
+    document.getElementById('edit_role').value = roleValue;
+    
+    document.getElementById('edit_status').value = user.is_active == 1 ? 'active' : 'inactive';
     document.getElementById('edit_password').value = '';
     
     // Mostrar el modal
     const modal = new bootstrap.Modal(document.getElementById('editUserModal'));
     modal.show();
-}
-
-function submitEditForm(event) {
-    event.preventDefault();
-    
-    const formData = new FormData(event.target);
-    const userId = formData.get('user_id');
-    
-    // Enviar datos via fetch
-    fetch(`<?= BASE_URL ?>admin/update-user/${userId}`, {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            // Cerrar modal
-            const modal = bootstrap.Modal.getInstance(document.getElementById('editUserModal'));
-            modal.hide();
-            
-            // Mostrar mensaje de éxito
-            alert('Usuario actualizado correctamente');
-            
-            // Recargar la página
-            location.reload();
-        } else {
-            alert('Error: ' + (data.message || 'No se pudo actualizar el usuario'));
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Error de conexión');
-    });
 }
 
 function confirmDelete(userId, username) {

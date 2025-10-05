@@ -55,19 +55,24 @@ class User {
     
     public function update($id, $data) {
         $updateData = [
-            'email' => $data['email'],
-            'full_name' => $data['full_name'],
-            'role' => $data['role'],
-            'business_id' => $data['business_id'] ?? null,
             'updated_at' => date('Y-m-d H:i:s')
         ];
         
-        // Solo actualizar contraseña si se proporciona
-        if (isset($data['password'])) {
-            $updateData['password_hash'] = $data['password'];
+        // Campos opcionales que se actualizarán si están presentes
+        $allowedFields = ['username', 'email', 'full_name', 'role', 'is_active', 'business_id'];
+        
+        foreach ($allowedFields as $field) {
+            if (isset($data[$field])) {
+                $updateData[$field] = $data[$field];
+            }
         }
         
-        return $this->db->update('users', $updateData, 'id = ?', [$id]);
+        // Solo actualizar contraseña si se proporciona
+        if (isset($data['password_hash'])) {
+            $updateData['password_hash'] = $data['password_hash'];
+        }
+        
+        return $this->db->update('users', $updateData, 'id = ?', $id);
     }
     
     public function delete($id) {

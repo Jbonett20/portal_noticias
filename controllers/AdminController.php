@@ -215,71 +215,108 @@ class AdminController {
     }
     
     public function updateUser($segments = []) {
-        require_once __DIR__ . '/../seguridad.php';
-        verificarAdmin();
-        
-        header('Content-Type: application/json');
-        
-        $userId = $segments[1] ?? null;
-        if (!$userId) {
-            echo json_encode(['success' => false, 'message' => 'ID de usuario no válido']);
-            return;
-        }
-        
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            echo json_encode(['success' => false, 'message' => 'Método no permitido']);
-            return;
-        }
-        
-        $username = trim($_POST['username'] ?? '');
-        $email = trim($_POST['email'] ?? '');
-        $password = trim($_POST['password'] ?? '');
-        $role = $_POST['role'] ?? 'user';
-        $status = $_POST['status'] ?? 'active';
-        
-        // Validaciones
-        if (empty($username) || empty($email)) {
-            echo json_encode(['success' => false, 'message' => 'Username y email son obligatorios']);
-            return;
-        }
-        
-        // Verificar si el username ya existe (excepto para este usuario)
-        $existingUser = $this->userModel->findByUsername($username);
-        if ($existingUser && $existingUser['id'] != $userId) {
-            echo json_encode(['success' => false, 'message' => 'El nombre de usuario ya existe']);
-            return;
-        }
-        
-        // Verificar si el email ya existe (excepto para este usuario)
-        $existingEmail = $this->userModel->findByEmail($email);
-        if ($existingEmail && $existingEmail['id'] != $userId) {
-            echo json_encode(['success' => false, 'message' => 'El email ya está registrado']);
-            return;
-        }
-        
         try {
+            require_once __DIR__ . '/../seguridad.php';
+            verificarAdmin();
+            
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                $_SESSION['error'] = 'Método no permitido';
+                redirect(BASE_URL . 'admin/users');
+                return;
+            }
+            
+            // Obtener userId del formulario
+            $userId = $_POST['user_id'] ?? null;
+            if (!$userId) {
+                $_SESSION['error'] = 'ID de usuario no válido';
+                redirect(BASE_URL . 'admin/users');
+                return;
+            }
+            
+            $username = trim($_POST['username'] ?? '');
+            $email = trim($_POST['email'] ?? '');
+            $password = trim($_POST['password'] ?? '');
+            $roleString = $_POST['role'] ?? 'user';
+            $isActive = isset($_POST['status']) && $_POST['status'] === 'active' ? 1 : 0;
+            
+            // Convertir rol string a número
+            $role = 'user'; // valor por defecto
+            if ($roleString === 'admin') {
+                $role = 1;
+            } elseif ($roleString === 'editor') {
+                $role = 2;
+            } else {
+                $role = 'user'; // mantenemos 'user' como string para compatibilidad
+            }
+            
+            // Validaciones
+            if (empty($username) || empty($email)) {
+                $_SESSION['error'] = 'Username y email son obligatorios';
+                redirect(BASE_URL . 'admin/users');
+                return;
+            }
+            
+            // Obtener usuario actual para comparar cambios
+            $currentUser = $this->userModel->findById($userId);
+            if (!$currentUser) {
+                $_SESSION['error'] = 'Usuario no encontrado';
+                redirect(BASE_URL . 'admin/users');
+                return;
+            }
+            
+            // Solo validar username si cambió
+            if ($username !== $currentUser['username']) {
+                $existingUser = $this->userModel->findByUsername($username);
+                if ($existingUser) {
+                    $_SESSION['error'] = 'El nombre de usuario ya existe';
+                    redirect(BASE_URL . 'admin/users');
+                    return;
+                }
+            }
+            
+            // Solo validar email si cambió
+            if ($email !== $currentUser['email']) {
+                $existingEmail = $this->userModel->findByEmail($email);
+                if ($existingEmail) {
+                    $_SESSION['error'] = 'El email ya está registrado';
+                    redirect(BASE_URL . 'admin/users');
+                    return;
+                }
+            }
+            
             $updateData = [
                 'username' => $username,
                 'email' => $email,
                 'role' => $role,
-                'status' => $status
+                'is_active' => $isActive,
+                'full_name' => $currentUser['full_name'] // Mantener el full_name actual
             ];
             
             // Solo actualizar contraseña si se proporcionó una nueva
             if (!empty($password)) {
                 if (strlen($password) < 6) {
-                    echo json_encode(['success' => false, 'message' => 'La contraseña debe tener al menos 6 caracteres']);
+                    $_SESSION['error'] = 'La contraseña debe tener al menos 6 caracteres';
+                    redirect(BASE_URL . 'admin/users');
                     return;
                 }
-                $updateData['password'] = password_hash($password, PASSWORD_DEFAULT);
+                $updateData['password_hash'] = password_hash($password, PASSWORD_DEFAULT);
             }
             
-            $this->userModel->update($userId, $updateData);
-            echo json_encode(['success' => true, 'message' => 'Usuario actualizado correctamente']);
+            $result = $this->userModel->update($userId, $updateData);
+            
+            if ($result) {
+                $_SESSION['success'] = 'Usuario actualizado correctamente';
+            } else {
+                $_SESSION['error'] = 'No se pudo actualizar el usuario';
+            }
             
         } catch (Exception $e) {
-            echo json_encode(['success' => false, 'message' => 'Error al actualizar: ' . $e->getMessage()]);
+            $_SESSION['error'] = 'Error del servidor: ' . $e->getMessage();
+        } catch (Error $e) {
+            $_SESSION['error'] = 'Error fatal: ' . $e->getMessage();
         }
+        
+        redirect(BASE_URL . 'admin/users');
     }
     
     // ===== GESTIÓN DE NOTICIAS =====
