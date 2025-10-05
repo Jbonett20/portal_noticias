@@ -25,9 +25,9 @@ ob_start();
                         <a href="<?= BASE_URL ?>admin" class="btn btn-outline-primary me-2">
                             <i class="bi bi-gear"></i> Administración
                         </a>
-                        <a href="<?= BASE_URL ?>dashboard/business/create" class="btn btn-primary">
+                        <button type="button" class="btn btn-primary" onclick="openCreateBusinessModal()">
                             <i class="bi bi-plus-circle"></i> Crear Negocio
-                        </a>
+                        </button>
                     <?php endif; ?>
                 </div>
             </div>
@@ -401,6 +401,159 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('statusClosed').addEventListener('change', toggleClosedReasonField);
     document.getElementById('statusOpen').addEventListener('change', toggleClosedReasonField);
 });
+</script>
+
+<!-- Modal de Crear Negocio -->
+<div class="modal fade" id="createBusinessModal" tabindex="-1" aria-labelledby="createBusinessModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="createBusinessModalLabel">
+                    <i class="bi bi-plus-circle me-2"></i>Crear Nuevo Negocio
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="createBusinessForm" action="index.php?controller=admin&action=businessCreate" method="POST" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="create_business_name" class="form-label">
+                                    <i class="bi bi-shop"></i> Nombre del Negocio *
+                                </label>
+                                <input type="text" class="form-control" id="create_business_name" name="name" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="create_business_section" class="form-label">
+                                    <i class="bi bi-tags"></i> Sección *
+                                </label>
+                                <select class="form-control" id="create_business_section" name="section_id" required>
+                                    <option value="">Seleccionar sección</option>
+                                    <?php if (isset($sections) && !empty($sections)): ?>
+                                        <?php foreach ($sections as $section): ?>
+                                        <option value="<?= $section['id'] ?>"><?= htmlspecialchars($section['title']) ?></option>
+                                        <?php endforeach; ?>
+                                    <?php else: ?>
+                                        <option value="">No hay secciones disponibles</option>
+                                    <?php endif; ?>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="create_business_description" class="form-label">
+                            <i class="bi bi-file-text"></i> Descripción *
+                        </label>
+                        <textarea class="form-control" id="create_business_description" name="description" rows="3" required 
+                                  placeholder="Describe el negocio y sus servicios"></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="create_business_short_description" class="form-label">
+                            <i class="bi bi-file-text"></i> Descripción Corta
+                        </label>
+                        <textarea class="form-control" id="create_business_short_description" name="short_description" rows="2" 
+                                  placeholder="Resumen breve para las tarjetas"></textarea>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="create_business_address" class="form-label">
+                                    <i class="bi bi-geo-alt"></i> Dirección
+                                </label>
+                                <input type="text" class="form-control" id="create_business_address" name="address" 
+                                       placeholder="Dirección completa">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="create_business_phone" class="form-label">
+                                    <i class="bi bi-telephone"></i> Teléfono
+                                </label>
+                                <input type="text" class="form-control" id="create_business_phone" name="phone" 
+                                       placeholder="Número de contacto">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="create_business_email" class="form-label">
+                                    <i class="bi bi-envelope"></i> Email
+                                </label>
+                                <input type="email" class="form-control" id="create_business_email" name="email" 
+                                       placeholder="correo@negocio.com">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="create_business_website" class="form-label">
+                                    <i class="bi bi-globe"></i> Sitio Web
+                                </label>
+                                <input type="url" class="form-control" id="create_business_website" name="website" 
+                                       placeholder="https://sitio-web.com">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="create_business_logo" class="form-label">
+                            <i class="bi bi-image"></i> Logo del Negocio
+                        </label>
+                        <input type="file" class="form-control" id="create_business_logo" name="logo" accept="image/*">
+                        <small class="text-muted">Formatos permitidos: JPG, PNG, GIF. Tamaño máximo: 2MB</small>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i>
+                        <strong>Información:</strong> Los campos marcados con * son obligatorios. El negocio se creará como publicado por defecto.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-check-lg me-1"></i>Crear Negocio
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// Función para abrir el modal de crear negocio
+function openCreateBusinessModal() {
+    console.log('Abriendo modal de crear negocio desde dashboard');
+    
+    const modalElement = document.getElementById('createBusinessModal');
+    if (!modalElement) {
+        console.error('Modal de crear no encontrado');
+        alert('Error: Modal no encontrado');
+        return;
+    }
+    
+    try {
+        // Limpiar el formulario
+        const form = document.getElementById('createBusinessForm');
+        if (form) {
+            form.reset();
+        }
+        
+        // Abrir el modal
+        const modal = new bootstrap.Modal(modalElement);
+        modal.show();
+        console.log('Modal abierto exitosamente');
+        
+    } catch (error) {
+        console.error('Error al abrir modal:', error);
+        alert('Error al abrir el modal: ' + error.message);
+    }
+}
 </script>
 
 <?php
