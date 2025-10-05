@@ -196,6 +196,25 @@ ob_start();
                         </div>
                     </div>
                     
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="mb-3" id="edit_business_field">
+                                <label for="edit_business_id" class="form-label">
+                                    <i class="bi bi-shop"></i> Negocio Asignado
+                                </label>
+                                <select class="form-control" id="edit_business_id" name="business_id">
+                                    <option value="">Sin negocio asignado</option>
+                                    <?php foreach ($businesses as $business): ?>
+                                        <option value="<?= $business['id'] ?>">
+                                            <?= htmlspecialchars($business['name']) ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <small class="text-muted">Solo aplicable para editores</small>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <div class="mb-3">
                         <label for="edit_password" class="form-label">Nueva Contraseña</label>
                         <input type="password" class="form-control" id="edit_password" name="password" 
@@ -246,10 +265,36 @@ function openEditModal(userId) {
     document.getElementById('edit_status').value = user.is_active == 1 ? 'active' : 'inactive';
     document.getElementById('edit_password').value = '';
     
+    // Configurar negocio asignado
+    document.getElementById('edit_business_id').value = user.business_id || '';
+    
+    // Mostrar/ocultar campo de negocio según el rol
+    toggleBusinessField(roleValue);
+    
     // Mostrar el modal
     const modal = new bootstrap.Modal(document.getElementById('editUserModal'));
     modal.show();
 }
+
+function toggleBusinessField(role) {
+    const businessField = document.getElementById('edit_business_field');
+    if (role === 'editor') {
+        businessField.style.display = 'block';
+    } else {
+        businessField.style.display = 'none';
+        document.getElementById('edit_business_id').value = '';
+    }
+}
+
+// Event listener para cambio de rol en el modal de edición
+document.addEventListener('DOMContentLoaded', function() {
+    const editRoleSelect = document.getElementById('edit_role');
+    if (editRoleSelect) {
+        editRoleSelect.addEventListener('change', function() {
+            toggleBusinessField(this.value);
+        });
+    }
+});
 
 function confirmDelete(userId, username) {
     if (confirm(`¿Estás seguro de que quieres eliminar al usuario "${username}"?\n\nEsta acción no se puede deshacer.`)) {

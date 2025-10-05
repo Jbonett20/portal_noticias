@@ -56,9 +56,13 @@ class AdminController {
             ORDER BY u.created_at DESC
         ");
         
+        // Obtener negocios disponibles para el modal de edición
+        $businesses = $this->businessModel->findAll();
+        
         $data = [
             'title' => 'Gestionar Usuarios',
-            'users' => $users
+            'users' => $users,
+            'businesses' => $businesses
         ];
         
         $this->render('admin/users', $data);
@@ -238,6 +242,7 @@ class AdminController {
             $password = trim($_POST['password'] ?? '');
             $roleString = $_POST['role'] ?? 'user';
             $isActive = isset($_POST['status']) && $_POST['status'] === 'active' ? 1 : 0;
+            $businessId = !empty($_POST['business_id']) ? $_POST['business_id'] : null;
             
             // Convertir rol string a número
             $role = 3; // valor por defecto para usuario básico
@@ -289,6 +294,7 @@ class AdminController {
                 'email' => $email,
                 'role' => $role,
                 'is_active' => $isActive,
+                'business_id' => $businessId,
                 'full_name' => $currentUser['full_name'] // Mantener el full_name actual
             ];
             
