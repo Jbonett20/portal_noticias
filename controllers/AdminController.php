@@ -37,9 +37,13 @@ class AdminController {
             'news_draft' => $this->db->fetch("SELECT COUNT(*) as count FROM news WHERE is_published = 0")['count']
         ];
         
+        // Obtener secciones para el modal de crear negocio
+        $sections = $this->sectionModel->findAll();
+        
         $data = [
             'title' => 'Panel de Administración',
-            'stats' => $stats
+            'stats' => $stats,
+            'sections' => $sections
         ];
         
         $this->render('admin/index', $data);

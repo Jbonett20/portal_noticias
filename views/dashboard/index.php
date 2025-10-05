@@ -172,10 +172,6 @@ ob_start();
                                         </span>
                                     </small>
                                     <div class="btn-group btn-group-sm">
-                                        <a href="<?= BASE_URL ?>business/<?= $business['slug'] ?>" 
-                                           class="btn btn-outline-primary" target="_blank" title="Ver público">
-                                            <i class="bi bi-eye"></i>
-                                        </a>
                                         <a href="<?= BASE_URL ?>dashboard/business/edit/<?= $business['id'] ?>" 
                                            class="btn btn-outline-secondary" title="Editar">
                                             <i class="bi bi-pencil"></i>

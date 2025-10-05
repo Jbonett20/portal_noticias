@@ -111,10 +111,6 @@ ob_start();
                             </td>
                             <td>
                                 <div class="btn-group btn-group-sm">
-                                    <a href="<?= BASE_URL ?>business/show/<?= $business['id'] ?>" 
-                                       class="btn btn-outline-info" title="Ver" target="_blank">
-                                        <i class="bi bi-eye"></i>
-                                    </a>
                                     <button class="btn btn-outline-primary" 
                                             onclick="openEditBusinessModal(<?= $business['id'] ?>)" 
                                             title="Editar">
