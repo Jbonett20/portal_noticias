@@ -37,9 +37,13 @@ class AdminController {
             'news_draft' => $this->db->fetch("SELECT COUNT(*) as count FROM news WHERE is_published = 0")['count']
         ];
         
+        // Obtener secciones para el modal de crear negocio
+        $sections = $this->sectionModel->findAll();
+        
         $data = [
             'title' => 'Panel de Administración',
-            'stats' => $stats
+            'stats' => $stats,
+            'sections' => $sections
         ];
         
         $this->render('admin/index', $data);
@@ -689,7 +693,7 @@ class AdminController {
         $targetPath = $uploadDir . $fileName;
         
         if (move_uploaded_file($file['tmp_name'], $targetPath)) {
-            return 'uploads/logos/' . $fileName;
+            return 'logos/' . $fileName;
         }
         
         return null;
@@ -834,7 +838,7 @@ class AdminController {
                 $uploadPath = $uploadDir . $fileName;
                 
                 if (move_uploaded_file($_FILES['logo']['tmp_name'], $uploadPath)) {
-                    $updateData['logo_path'] = 'uploads/logos/' . $fileName;
+                    $updateData['logo_path'] = 'logos/' . $fileName;
                 }
             }
             
