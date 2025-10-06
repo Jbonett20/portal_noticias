@@ -495,7 +495,7 @@ function openEditBusinessModal(businessId) {
         if (business.logo_path) {
             logoPreview.innerHTML = `
                 <label class="form-label">Logo Actual:</label><br>
-                <img src="<?= BASE_URL ?>${business.logo_path}" alt="Logo actual" 
+                <img src="<?= UPLOAD_URL ?>${business.logo_path}" alt="Logo actual" 
                      style="max-width: 150px; max-height: 100px;" class="img-thumbnail">
             `;
         } else {
