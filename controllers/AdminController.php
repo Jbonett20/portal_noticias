@@ -693,7 +693,7 @@ class AdminController {
         $targetPath = $uploadDir . $fileName;
         
         if (move_uploaded_file($file['tmp_name'], $targetPath)) {
-            return 'uploads/logos/' . $fileName;
+            return 'logos/' . $fileName;
         }
         
         return null;
@@ -838,7 +838,7 @@ class AdminController {
                 $uploadPath = $uploadDir . $fileName;
                 
                 if (move_uploaded_file($_FILES['logo']['tmp_name'], $uploadPath)) {
-                    $updateData['logo_path'] = 'uploads/logos/' . $fileName;
+                    $updateData['logo_path'] = 'logos/' . $fileName;
                 }
             }
             
