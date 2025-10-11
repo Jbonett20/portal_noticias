@@ -17,12 +17,10 @@ class News {
             'is_published' => ($data['status'] === 'published') ? 1 : 0,
             'published_at' => ($data['status'] === 'published') ? date('Y-m-d H:i:s') : null,
             'featured_image' => $data['image_url'] ?? null,
+            'video_url' => $data['video_url'] ?? null,
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s')
         ];
-        
-        // Nota: section_id y business_id no están disponibles en la tabla actual
-        
         return $this->db->insert('news', $newsData);
     }
     
