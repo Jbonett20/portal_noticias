@@ -67,16 +67,14 @@ ob_start();
         <!-- Estadísticas -->
         <div class="row mb-4 justify-content-center">
             <?php 
-                $total = count($allNews ?? []);
+                $total = count($news ?? []);
                 $published = 0;
                 $drafts = 0;
                 $featured = 0;
-                if (isset($allNews)) {
-                    foreach ($allNews as $news) {
-                        if ($news['status'] === 'published') $published++;
-                        if ($news['status'] === 'draft') $drafts++;
-                        if (!empty($news['featured']) && $news['featured']) $featured++;
-                    }
+                foreach ($news as $n) {
+                    if ($n['status'] === 'published') $published++;
+                    if ($n['status'] === 'draft') $drafts++;
+                    if (!empty($n['featured']) && $n['featured']) $featured++;
                 }
             ?>
             <div class="col-6 col-md-3 mb-2">
