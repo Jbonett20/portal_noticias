@@ -6,70 +6,47 @@ verificarAdmin();
 $title = 'Gestionar Noticias - ' . SITE_NAME;
 ob_start();
 ?>
-        .status-published { background-color: #d4edda; color: #155724; }
-        .status-draft { background-color: #fff3cd; color: #856404; }
-        .status-archived { background-color: #f8d7da; color: #721c24; }
-        
-        .featured-badge {
-            background: linear-gradient(45deg, #ffd700, #ffed4a);
-            color: #8b6914;
-            padding: 0.25rem 0.5rem;
-            border-radius: 0.5rem;
-            font-size: 0.7rem;
-            font-weight: 600;
-        }
-        
-        .news-image {
-            width: 60px;
-            height: 45px;
-            object-fit: cover;
-            border-radius: 0.375rem;
-        }
-        
-        .table-actions .btn {
-            padding: 0.25rem 0.5rem;
-            font-size: 0.75rem;
-        }
-        
-        .stats-card {
-            border: none;
-            border-radius: 1rem;
-            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-            transition: transform 0.15s ease-in-out;
-        }
-        
-        .stats-card:hover {
-            transform: translateY(-2px);
-        }
-        
-        .btn-toggle-status {
-            border: none;
-            padding: 0.25rem 0.5rem;
-            border-radius: 0.5rem;
-            font-size: 0.75rem;
-        }
-    </style>
+<style>
+.status-published { background-color: #d4edda; color: #155724; }
+.status-draft { background-color: #fff3cd; color: #856404; }
+.status-archived { background-color: #f8d7da; color: #721c24; }
+.featured-badge {
+    background: linear-gradient(45deg, #ffd700, #ffed4a);
+    color: #8b6914;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.5rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+.news-image {
+    width: 60px;
+    height: 45px;
+    object-fit: cover;
+    border-radius: 0.375rem;
+}
+.table-actions .btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+}
+.stats-card {
+    border: none;
+    border-radius: 1rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    transition: transform 0.15s ease-in-out;
+}
+.stats-card:hover {
+    transform: translateY(-2px);
+}
+.btn-toggle-status {
+    border: none;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.5rem;
+    font-size: 0.75rem;
+}
+</style>
 </head>
 <body class="bg-light">
-    <!-- Header -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="index.php?controller=dashboard">
-                <i class="fas fa-newspaper"></i> Admin - Noticias
-            </a>
-            <div class="navbar-nav ms-auto">
-                <a class="nav-link" href="index.php?controller=news&action=index">
-                    <i class="fas fa-eye"></i> Ver Sitio
-                </a>
-                <a class="nav-link" href="index.php?controller=dashboard">
-                    <i class="fas fa-tachometer-alt"></i> Dashboard
-                </a>
-                <a class="nav-link" href="index.php?controller=auth&action=logout">
-                    <i class="fas fa-sign-out-alt"></i> Salir
-                </a>
-            </div>
-        </div>
-    </nav>
+    <!-- Header principal ya está en layout/main.php -->
 
     <div class="container-fluid mt-4">
         <!-- Mensajes -->
@@ -88,94 +65,49 @@ ob_start();
         <?php endif; ?>
 
         <!-- Estadísticas -->
-        <div class="row mb-4">
-            <div class="col-md-3">
-                <div class="card stats-card bg-primary text-white">
+        <div class="row mb-4 justify-content-center">
+            <?php 
+                $total = count($allNews ?? []);
+                $published = 0;
+                $drafts = 0;
+                $featured = 0;
+                if (isset($allNews)) {
+                    foreach ($allNews as $news) {
+                        if ($news['status'] === 'published') $published++;
+                        if ($news['status'] === 'draft') $drafts++;
+                        if (!empty($news['featured']) && $news['featured']) $featured++;
+                    }
+                }
+            ?>
+            <div class="col-6 col-md-3 mb-2">
+                <div class="card stats-card text-white bg-primary text-center">
                     <div class="card-body">
-                        <div class="d-flex justify-content-between">
-                            <div>
-                                <h6 class="card-title">Total Noticias</h6>
-                                <h3 class="mb-0"><?php echo isset($totalNews) ? $totalNews : count($allNews ?? []); ?></h3>
-                            </div>
-                            <div class="align-self-center">
-                                <i class="fas fa-newspaper fa-2x opacity-75"></i>
-                            </div>
-                        </div>
+                        <h6 class="card-title">Total Noticias</h6>
+                        <h3 class="mb-0"><?php echo $total; ?></h3>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="card stats-card bg-success text-white">
-                    <div class="body">
-                        <div class="d-flex justify-content-between">
-                            <div>
-                                <h6 class="card-title">Publicadas</h6>
-                                <h3 class="mb-0">
-                                    <?php 
-                                    $published = 0;
-                                    if (isset($allNews)) {
-                                        foreach ($allNews as $news) {
-                                            if ($news['status'] === 'published') $published++;
-                                        }
-                                    }
-                                    echo $published;
-                                    ?>
-                                </h3>
-                            </div>
-                            <div class="align-self-center">
-                                <i class="fas fa-check-circle fa-2x opacity-75"></i>
-                            </div>
-                        </div>
+            <div class="col-6 col-md-3 mb-2">
+                <div class="card stats-card text-white bg-success text-center">
+                    <div class="card-body">
+                        <h6 class="card-title">Publicadas</h6>
+                        <h3 class="mb-0"><?php echo $published; ?></h3>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="card stats-card bg-warning text-white">
+            <div class="col-6 col-md-3 mb-2">
+                <div class="card stats-card text-white bg-warning text-center">
                     <div class="card-body">
-                        <div class="d-flex justify-content-between">
-                            <div>
-                                <h6 class="card-title">Borradores</h6>
-                                <h3 class="mb-0">
-                                    <?php 
-                                    $drafts = 0;
-                                    if (isset($allNews)) {
-                                        foreach ($allNews as $news) {
-                                            if ($news['status'] === 'draft') $drafts++;
-                                        }
-                                    }
-                                    echo $drafts;
-                                    ?>
-                                </h3>
-                            </div>
-                            <div class="align-self-center">
-                                <i class="fas fa-edit fa-2x opacity-75"></i>
-                            </div>
-                        </div>
+                        <h6 class="card-title">Borradores</h6>
+                        <h3 class="mb-0"><?php echo $drafts; ?></h3>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="card stats-card bg-info text-white">
+            <div class="col-6 col-md-3 mb-2">
+                <div class="card stats-card text-white bg-info text-center">
                     <div class="card-body">
-                        <div class="d-flex justify-content-between">
-                            <div>
-                                <h6 class="card-title">Destacadas</h6>
-                                <h3 class="mb-0">
-                                    <?php 
-                                    $featured = 0;
-                                    if (isset($allNews)) {
-                                        foreach ($allNews as $news) {
-                                            if ($news['featured']) $featured++;
-                                        }
-                                    }
-                                    echo $featured;
-                                    ?>
-                                </h3>
-                            </div>
-                            <div class="align-self-center">
-                                <i class="fas fa-star fa-2x opacity-75"></i>
-                            </div>
-                        </div>
+                        <h6 class="card-title">Destacadas</h6>
+                        <h3 class="mb-0"><?php echo $featured; ?></h3>
                     </div>
                 </div>
             </div>
@@ -304,23 +236,10 @@ ob_start();
                                                     title="Editar noticia">
                                                 <i class="bi bi-pencil"></i>
                                             </button>
-                                            
-                                            <!-- Toggle Status -->
-                                            <button class="btn btn-outline-<?php echo $noticia['status'] === 'published' ? 'secondary' : 'success'; ?> btn-toggle-status" 
-                                                    data-id="<?php echo $noticia['id']; ?>"
-                                                    data-status="<?php echo $noticia['status'] === 'published' ? 'draft' : 'published'; ?>"
-                                                    title="<?php echo $noticia['status'] === 'published' ? 'Despublicar' : 'Publicar'; ?>">
-                                                <i class="fas fa-<?php echo $noticia['status'] === 'published' ? 'eye-slash' : 'check'; ?>"></i>
+                                            <!-- Eliminar -->
+                                            <button class="btn btn-outline-danger" onclick="deleteNews(<?= $noticia['id'] ?>)" title="Eliminar noticia">
+                                                <i class="bi bi-trash"></i>
                                             </button>
-                                            
-                                            <!-- Eliminar (solo admin) -->
-                                            <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
-                                            <button class="btn btn-outline-danger" 
-                                                    onclick="deleteNews(<?php echo $noticia['id']; ?>)"
-                                                    title="Eliminar noticia">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                            <?php endif; ?>
                                         </div>
                                     </div>
                                 </td>
@@ -329,49 +248,6 @@ ob_start();
                         </tbody>
                     </table>
                 </div>
-
-                <!-- Paginación -->
-                <?php if (isset($totalPages) && $totalPages > 1): ?>
-                <nav aria-label="Paginación">
-                    <ul class="pagination justify-content-center">
-                        <?php 
-                        $currentPage = isset($_GET['page']) ? intval($_GET['page']) : 1;
-                        $status = isset($_GET['status']) ? $_GET['status'] : 'all';
-                        
-                        // Página anterior
-                        if ($currentPage > 1): ?>
-                        <li class="page-item">
-                            <a class="page-link" href="?controller=news&action=admin&status=<?php echo $status; ?>&page=<?php echo $currentPage - 1; ?>">
-                                Anterior
-                            </a>
-                        </li>
-                        <?php endif; ?>
-                        
-                        <?php 
-                        // Páginas numeradas
-                        $start = max(1, $currentPage - 2);
-                        $end = min($totalPages, $currentPage + 2);
-                        
-                        for ($i = $start; $i <= $end; $i++): ?>
-                        <li class="page-item <?php echo $i == $currentPage ? 'active' : ''; ?>">
-                            <a class="page-link" href="?controller=news&action=admin&status=<?php echo $status; ?>&page=<?php echo $i; ?>">
-                                <?php echo $i; ?>
-                            </a>
-                        </li>
-                        <?php endfor; ?>
-                        
-                        <?php // Página siguiente
-                        if ($currentPage < $totalPages): ?>
-                        <li class="page-item">
-                            <a class="page-link" href="?controller=news&action=admin&status=<?php echo $status; ?>&page=<?php echo $currentPage + 1; ?>">
-                                Siguiente
-                            </a>
-                        </li>
-                        <?php endif; ?>
-                    </ul>
-                </nav>
-                <?php endif; ?>
-
                 <?php else: ?>
                 <div class="text-center py-5">
                     <i class="fas fa-newspaper fa-4x text-muted mb-3"></i>
@@ -382,71 +258,66 @@ ob_start();
                     </button>
                 </div>
                 <?php endif; ?>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal de Creación de Noticia (ubicado al final del body para asegurar funcionalidad) -->
-    </div>
-    <div class="modal fade" id="createNewsModal" tabindex="-1" aria-labelledby="createNewsModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-xl">
-            <div class="modal-content">
-                <div class="modal-header bg-success text-white">
-                    <h5 class="modal-title" id="createNewsModalLabel">
-                        <i class="bi bi-plus-circle me-2"></i>Crear Noticia
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <form id="createNewsForm" enctype="multipart/form-data" onsubmit="submitCreateNewsForm(event)">
-                    <div id="createNewsMsg"></div>
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="col-md-8">
-                                <div class="mb-3">
-                                    <label for="create_news_title" class="form-label">Título</label>
-                                    <input type="text" class="form-control" id="create_news_title" name="title" required>
+                                <!-- Modal Crear Noticia -->
+                                <div class="modal fade" id="createNewsModal" tabindex="-1" aria-labelledby="createNewsModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog modal-xl">
+                                        <div class="modal-content">
+                                            <div class="modal-header bg-success text-white">
+                                                <h5 class="modal-title" id="createNewsModalLabel">
+                                                    <i class="bi bi-plus-circle me-2"></i>Crear Noticia
+                                                </h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <form id="createNewsForm" enctype="multipart/form-data" onsubmit="submitCreateNewsForm(event)">
+                                                <div id="createNewsMsg"></div>
+                                                <div class="modal-body">
+                                                    <div class="row">
+                                                        <div class="col-md-8">
+                                                            <div class="mb-3">
+                                                                <label for="create_news_title" class="form-label">Título</label>
+                                                                <input type="text" class="form-control" id="create_news_title" name="title" required>
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <label for="create_news_summary" class="form-label">Resumen</label>
+                                                                <textarea class="form-control" id="create_news_summary" name="summary" rows="3"></textarea>
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <label for="create_news_content" class="form-label">Contenido</label>
+                                                                <textarea class="form-control" id="create_news_content" name="content" rows="8" required></textarea>
+                                                            </div>
+                                                            <input type="hidden" id="create_news_author" name="author" value="<?php echo $_SESSION['user']['username'] ?? 'admin'; ?>">
+                                                            <input type="hidden" id="create_news_date" name="publication_date" value="<?php echo date('Y-m-d H:i:s'); ?>">
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <input type="hidden" id="create_news_section" name="section_id" value="noticias">
+                                                            <div class="mb-3">
+                                                                <label for="create_news_status" class="form-label">Estado</label>
+                                                                <select class="form-control" id="create_news_status" name="status" required>
+                                                                    <option value="draft">Borrador</option>
+                                                                    <option value="published">Publicado</option>
+                                                                </select>
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <label for="create_news_image" class="form-label">Imagen</label>
+                                                                <input type="file" class="form-control" id="create_news_image" name="image" accept="image/*">
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <label for="create_news_video" class="form-label">Video</label>
+                                                                <input type="file" class="form-control" id="create_news_video" name="video" accept="video/*">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                                    <button type="submit" class="btn btn-success">
+                                                        <i class="bi bi-check-lg me-1"></i>Crear Noticia
+                                                    </button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="mb-3">
-                                    <label for="create_news_summary" class="form-label">Resumen</label>
-                                    <textarea class="form-control" id="create_news_summary" name="summary" rows="3"></textarea>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="create_news_content" class="form-label">Contenido</label>
-                                    <textarea class="form-control" id="create_news_content" name="content" rows="8" required></textarea>
-                                </div>
-                                <input type="hidden" id="create_news_author" name="author" value="<?php echo $_SESSION['user']['username'] ?? 'admin'; ?>">
-                                <input type="hidden" id="create_news_date" name="publication_date" value="<?php echo date('Y-m-d H:i:s'); ?>">
-                            </div>
-                            <div class="col-md-4">
-                                    <input type="hidden" id="create_news_section" name="section_id" value="noticias">
-                                <div class="mb-3">
-                                    <label for="create_news_status" class="form-label">Estado</label>
-                                    <select class="form-control" id="create_news_status" name="status" required>
-                                        <option value="draft">Borrador</option>
-                                        <option value="published">Publicado</option>
-                                    </select>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="create_news_image" class="form-label">Imagen</label>
-                                    <input type="file" class="form-control" id="create_news_image" name="image" accept="image/*">
-                                </div>
-                                <div class="mb-3">
-                                    <label for="create_news_video" class="form-label">Video</label>
-                                    <input type="file" class="form-control" id="create_news_video" name="video" accept="video/*">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn btn-success">
-                            <i class="bi bi-check-lg me-1"></i>Crear Noticia
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
 
     <!-- Bootstrap JS y scripts personalizados al final del body -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -738,7 +609,10 @@ ob_start();
         });
     </script>
 
+<!-- Cierre de contenedores principales si faltan -->
+</div> <!-- container-fluid -->
+
 <?php
 $content = ob_get_clean();
 include dirname(__DIR__) . '/layout/main.php';
-?>
+// Fin de archivo
