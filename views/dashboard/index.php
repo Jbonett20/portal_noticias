@@ -172,10 +172,97 @@ ob_start();
                                         </span>
                                     </small>
                                     <div class="btn-group btn-group-sm">
-                                        <a href="<?= BASE_URL ?>dashboard/business/edit/<?= $business['id'] ?>" 
-                                           class="btn btn-outline-secondary" title="Editar">
+                                        <button class="btn btn-outline-secondary" title="Editar" onclick="openEditBusinessModal(<?= $business['id'] ?>)">
                                             <i class="bi bi-pencil"></i>
-                                        </a>
+                                        </button>
+<!-- Modal Edición Negocio (solo uno en el DOM) -->
+<div class="modal fade" id="editBusinessModal" tabindex="-1" aria-labelledby="editBusinessModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="editBusinessModalLabel">
+                    <i class="bi bi-pencil-square me-2"></i> Editar Negocio
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="editBusinessForm" enctype="multipart/form-data" onsubmit="submitEditBusinessForm(event)">
+                <div class="modal-body">
+                    <div id="editBusinessMsg"></div>
+                    <input type="hidden" id="edit_business_id" name="business_id">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="edit_business_section_id" class="form-label">Sección</label>
+                                <select class="form-select" id="edit_business_section_id" name="section_id" required>
+                                    <?php foreach ($sections as $section): ?>
+                                        <option value="<?= $section['id'] ?>" <?= (isset($business) && $business['section_id'] == $section['id']) ? 'selected' : '' ?>><?= htmlspecialchars($section['title']) ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="edit_business_name" class="form-label">Nombre</label>
+                                <input type="text" class="form-control" id="edit_business_name" name="name" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="edit_business_short_description" class="form-label">Descripción corta</label>
+                                <input type="text" class="form-control" id="edit_business_short_description" name="short_description">
+                            </div>
+                            <div class="mb-3">
+                                <label for="edit_business_description" class="form-label">Descripción completa</label>
+                                <textarea class="form-control" id="edit_business_description" name="description" rows="4"></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="edit_business_advertisement_text" class="form-label">Texto publicitario</label>
+                                <textarea class="form-control" id="edit_business_advertisement_text" name="advertisement_text" rows="2"></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="edit_business_address" class="form-label">Dirección</label>
+                                <input type="text" class="form-control" id="edit_business_address" name="address">
+                            </div>
+                            <div class="mb-3">
+                                <label for="edit_business_phone" class="form-label">Teléfono</label>
+                                <input type="text" class="form-control" id="edit_business_phone" name="phone">
+                            </div>
+                            <div class="mb-3">
+                                <label for="edit_business_website" class="form-label">Sitio web</label>
+                                <input type="url" class="form-control" id="edit_business_website" name="website">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Estado del negocio</label>
+                                <select class="form-select" id="edit_business_is_open" name="is_open" onchange="toggleClosedReason()">
+                                    <option value="1">Abierto</option>
+                                    <option value="0">Cerrado</option>
+                                </select>
+                            </div>
+                            <div class="mb-3" id="closedReasonContainer" style="display:none;">
+                                <label for="edit_business_closed_reason" class="form-label">Motivo de cierre</label>
+                                <input type="text" class="form-control" id="edit_business_closed_reason" name="closed_reason">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Imagen actual</label>
+                                <div id="edit_business_image_preview"></div>
+                                <input type="file" class="form-control mt-2" id="edit_business_image" name="image" accept="image/*">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Video actual</label>
+                                <div id="edit_business_video_preview"></div>
+                                <input type="file" class="form-control mt-2" id="edit_business_video" name="video" accept="video/*">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-lg me-1"></i> Guardar Cambios
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
                                     </div>
                                 </div>
                             </div>
@@ -256,12 +343,13 @@ ob_start();
 </div>
 
 <style>
+
 .business-card {
-    transition: transform 0.2s;
+    transition: none;
 }
 
 .business-card:hover {
-    transform: translateY(-2px);
+    transform: none;
 }
 
 .status-dot {
@@ -313,6 +401,74 @@ ob_start();
 </style>
 
 <script>
+// Abrir modal edición negocio y cargar datos vía AJAX
+function openEditBusinessModal(businessId) {
+    fetch('index.php?controller=dashboard&action=getBusiness&id=' + businessId)
+        .then(response => response.json())
+        .then(data => {
+            if (!data.success) {
+                alert('No se pudo cargar el negocio');
+                return;
+            }
+            const b = data.business;
+            document.getElementById('edit_business_id').value = b.id;
+            document.getElementById('edit_business_name').value = b.name;
+            // Seleccionar la sección actual en el select
+            const sectionSelect = document.getElementById('edit_business_section_id');
+            if (sectionSelect) {
+                for (let i = 0; i < sectionSelect.options.length; i++) {
+                    sectionSelect.options[i].selected = sectionSelect.options[i].value == b.section_id;
+                }
+            }
+            document.getElementById('edit_business_short_description').value = b.short_description || '';
+            document.getElementById('edit_business_description').value = b.description || '';
+            document.getElementById('edit_business_advertisement_text').value = b.advertisement_text || '';
+            document.getElementById('edit_business_address').value = b.address || '';
+            document.getElementById('edit_business_phone').value = b.phone || '';
+            document.getElementById('edit_business_website').value = b.website || '';
+            document.getElementById('edit_business_is_open').value = b.is_open;
+            document.getElementById('edit_business_closed_reason').value = b.closed_reason || '';
+            toggleClosedReason();
+            // Imagen actual
+            document.getElementById('edit_business_image_preview').innerHTML = b.image_path ? `<img src='${b.image_path}' alt='Logo' style='max-width:120px;max-height:90px;' class='img-thumbnail'>` : '<small class="text-muted">Sin imagen</small>';
+            // Video actual
+            document.getElementById('edit_business_video_preview').innerHTML = b.video_url ? `<video src='${b.video_url}' controls style='max-width:180px;max-height:120px;'></video>` : '<small class="text-muted">Sin video</small>';
+            const modal = new bootstrap.Modal(document.getElementById('editBusinessModal'));
+            modal.show();
+        });
+}
+
+function toggleClosedReason() {
+    const isOpen = document.getElementById('edit_business_is_open').value;
+    document.getElementById('closedReasonContainer').style.display = (isOpen == '0') ? '' : 'none';
+}
+
+function submitEditBusinessForm(event) {
+    event.preventDefault();
+    const formData = new FormData(event.target);
+    fetch('index.php?controller=dashboard&action=updateBusiness', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        const msgDiv = document.getElementById('editBusinessMsg');
+        if (data.success) {
+            msgDiv.innerHTML = `<div class='alert alert-success'><i class='bi bi-check-circle'></i> ${data.message}</div>`;
+            setTimeout(() => {
+                const modal = bootstrap.Modal.getInstance(document.getElementById('editBusinessModal'));
+                modal.hide();
+                location.reload();
+            }, 1200);
+        } else {
+            msgDiv.innerHTML = `<div class='alert alert-danger'><i class='bi bi-exclamation-circle'></i> ${data.message}</div>`;
+        }
+    })
+    .catch(error => {
+        const msgDiv = document.getElementById('editBusinessMsg');
+        msgDiv.innerHTML = `<div class='alert alert-danger'><i class='bi bi-exclamation-circle'></i> Error de conexión</div>`;
+    });
+}
 let currentBusinessId = null;
 
 function toggleBusinessStatus(businessId, isOpen) {

@@ -139,6 +139,15 @@ class Router {
                 $controllerInstance = new $controller($this->db);
                 
                 if (method_exists($controllerInstance, $action)) {
+                // Rutas AJAX para edición de negocio en dashboard
+                if ($controller === 'DashboardController' && $action === 'getBusiness') {
+                    (new DashboardController($this->db))->getBusiness($segments);
+                    exit;
+                }
+                if ($controller === 'DashboardController' && $action === 'updateBusiness') {
+                    (new DashboardController($this->db))->updateBusiness($segments);
+                    exit;
+                }
                     $controllerInstance->$action($segments);
                 } else {
                     $this->showError('Acción no encontrada', 404);

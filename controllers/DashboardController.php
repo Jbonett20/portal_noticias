@@ -3,6 +3,87 @@ require_once 'models/Business.php';
 require_once 'models/Section.php';
 
 class DashboardController {
+    // Obtener datos de un negocio para edición AJAX
+    public function getBusiness($segments = []) {
+        require_once __DIR__ . '/../seguridad.php';
+        verificarEditor();
+        $businessId = $_GET['id'] ?? null;
+        if (!$businessId) {
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'message' => 'ID de negocio requerido']);
+            return;
+        }
+        $business = $this->businessModel->findById($businessId);
+        if (!$business) {
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'message' => 'Negocio no encontrado']);
+            return;
+        }
+        // Obtener imagen principal
+        $image = $this->db->fetch("SELECT image_path FROM business_images WHERE business_id = ? ORDER BY is_featured DESC, uploaded_at DESC LIMIT 1", [$businessId]);
+        $business['image_path'] = $image ? UPLOAD_URL . $image['image_path'] : '';
+        // Obtener video principal
+        $video = $this->db->fetch("SELECT video_url FROM business_videos WHERE business_id = ? AND is_active = 1 ORDER BY display_order ASC, created_at DESC LIMIT 1", [$businessId]);
+        $business['video_url'] = $video ? $video['video_url'] : '';
+        header('Content-Type: application/json');
+        echo json_encode(['success' => true, 'business' => $business]);
+    }
+
+    // Actualizar datos de negocio vía AJAX
+    public function updateBusiness($segments = []) {
+        require_once __DIR__ . '/../seguridad.php';
+        verificarEditor();
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'message' => 'Método no permitido']);
+            return;
+        }
+        $businessId = $_POST['business_id'] ?? null;
+        if (!$businessId) {
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'message' => 'ID de negocio requerido']);
+            return;
+        }
+        $updateData = [
+            'section_id' => $_POST['section_id'] ?? null,
+            'name' => $_POST['name'] ?? '',
+            'short_description' => $_POST['short_description'] ?? '',
+            'description' => $_POST['description'] ?? '',
+            'advertisement_text' => $_POST['advertisement_text'] ?? '',
+            'address' => $_POST['address'] ?? '',
+            'phone' => $_POST['phone'] ?? '',
+            'website' => $_POST['website'] ?? '',
+            'is_open' => $_POST['is_open'] ?? 1,
+            'closed_reason' => $_POST['closed_reason'] ?? ''
+        ];
+        try {
+            $this->businessModel->update($businessId, $updateData);
+            // Imagen
+            if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+                $uploadPath = $this->uploadBusinessImage($_FILES['image']);
+                $this->db->query("INSERT INTO business_images (business_id, image_path, uploaded_by, uploaded_at) VALUES (?, ?, ?, NOW())", [$businessId, $uploadPath, getCurrentUser()['id']]);
+            }
+            // Video
+            if (isset($_FILES['video']) && $_FILES['video']['error'] === UPLOAD_ERR_OK) {
+                // Guardar video como archivo o URL
+                $videoUrl = '';
+                if (!empty($_POST['video_url'])) {
+                    $videoUrl = $_POST['video_url'];
+                } else {
+                    // Si es archivo subido
+                    $videoPath = 'businesses/videos/' . uniqid('video_') . '_' . $_FILES['video']['name'];
+                    move_uploaded_file($_FILES['video']['tmp_name'], UPLOAD_PATH . $videoPath);
+                    $videoUrl = UPLOAD_URL . $videoPath;
+                }
+                $this->db->query("INSERT INTO business_videos (business_id, video_url, is_active, uploaded_by, created_at) VALUES (?, ?, 1, ?, NOW())", [$businessId, $videoUrl, getCurrentUser()['id']]);
+            }
+            header('Content-Type: application/json');
+            echo json_encode(['success' => true, 'message' => 'Negocio actualizado correctamente']);
+        } catch (Exception $e) {
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'message' => 'Error al actualizar: ' . $e->getMessage()]);
+        }
+    }
     private $db;
     private $businessModel;
     private $sectionModel;
