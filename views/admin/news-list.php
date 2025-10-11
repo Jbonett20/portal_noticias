@@ -122,7 +122,7 @@ ob_start();
                     </div>
                     <div class="col-auto">
                         <div class="btn-group" role="group">
-                                <button type="button" class="btn btn-success" onclick="openCreateNewsModal()">
+                                <button type="button" class="btn btn-warning btn-sm rounded-pill px-2" style="background-color: #ff9800; border: none; color: #fff;" onclick="openCreateNewsModal()">
                                     <i class="fas fa-plus"></i> Nueva Noticia
                                 </button>
                             <button type="button" class="btn btn-outline-secondary dropdown-toggle" 
@@ -146,7 +146,17 @@ ob_start();
             </div>
 
             <div class="card-body">
-                <?php if (!empty($allNews)): ?>
+                <?php
+                // PAGINACIÓN PHP
+                $allNews = $news ?? [];
+                $currentPage = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
+                $perPage = 10;
+                $totalNews = count($allNews);
+                $totalPages = ceil($totalNews / $perPage);
+                $start = ($currentPage - 1) * $perPage;
+                $newsPage = array_slice($allNews, $start, $perPage);
+                ?>
+                <?php if (!empty($newsPage)): ?>
                 <div class="table-responsive">
                     <table class="table table-hover">
                         <thead class="table-dark">
@@ -162,7 +172,7 @@ ob_start();
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($allNews as $noticia): ?>
+                            <?php foreach ($newsPage as $noticia): ?>
                             <tr>
                                 <td>
                                     <?php if (!empty($noticia['featured_image'])): ?>
@@ -178,14 +188,14 @@ ob_start();
                                 <td>
                                     <div>
                                         <strong><?php echo htmlspecialchars(substr($noticia['title'], 0, 50)) . (strlen($noticia['title']) > 50 ? '...' : ''); ?></strong>
-                                        <?php if ($noticia['featured']): ?>
+                                        <?php if (!empty($noticia['featured'])): ?>
                                         <br><span class="featured-badge"><i class="fas fa-star"></i> Destacada</span>
                                         <?php endif; ?>
                                     </div>
                                 </td>
                                 <td>
                                     <span class="badge bg-secondary">
-                                        <?php echo htmlspecialchars($noticia['category']); ?>
+                                        <?php echo htmlspecialchars(isset($noticia['category']) ? $noticia['category'] : 'General'); ?>
                                     </span>
                                 </td>
                                 <td>
@@ -222,20 +232,16 @@ ob_start();
                                         <div class="btn-group btn-group-sm" role="group">
                                             <!-- Ver -->
                                             <a href="index.php?controller=news&action=show&slug=<?php echo htmlspecialchars($noticia['slug']); ?>" 
-                                               class="btn btn-outline-primary" 
+                                               class="btn btn-primary btn-xs rounded-pill px-2 py-0 me-1" 
                                                title="Ver noticia" 
                                                target="_blank">
-                                                <i class="fas fa-eye"></i>
+                                                <i class="bi bi-eye"></i>
                                             </a>
-                                            
                                             <!-- Editar -->
-                                            <button class="btn btn-outline-warning" 
-                                                    onclick="openEditNewsModal(<?= $noticia['id'] ?>)"
-                                                    title="Editar noticia">
+                                            <button class="btn btn-success btn-xs me-1 rounded-pill px-2 py-0" style="font-size:0.8rem;" onclick="openEditNewsModal(<?= $noticia['id'] ?>)" title="Editar noticia">
                                                 <i class="bi bi-pencil"></i>
                                             </button>
-                                            <!-- Eliminar -->
-                                            <button class="btn btn-outline-danger" onclick="deleteNews(<?= $noticia['id'] ?>)" title="Eliminar noticia">
+                                            <button class="btn btn-danger btn-xs rounded-pill px-2 py-0" style="font-size:0.8rem;" onclick="deleteNews(<?= $noticia['id'] ?>)" title="Eliminar noticia">
                                                 <i class="bi bi-trash"></i>
                                             </button>
                                         </div>
@@ -246,6 +252,22 @@ ob_start();
                         </tbody>
                     </table>
                 </div>
+                <!-- PAGINADOR -->
+                <nav aria-label="Paginador de noticias">
+                  <ul class="pagination justify-content-center">
+                    <?php if ($currentPage > 1): ?>
+                      <li class="page-item"><a class="page-link" href="?page=<?php echo $currentPage - 1; ?>">Anterior</a></li>
+                    <?php endif; ?>
+                    <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                      <li class="page-item <?php echo $i == $currentPage ? 'active' : ''; ?>">
+                        <a class="page-link" href="?page=<?php echo $i; ?>"><?php echo $i; ?></a>
+                      </li>
+                    <?php endfor; ?>
+                    <?php if ($currentPage < $totalPages): ?>
+                      <li class="page-item"><a class="page-link" href="?page=<?php echo $currentPage + 1; ?>">Siguiente</a></li>
+                    <?php endif; ?>
+                  </ul>
+                </nav>
                 <?php else: ?>
                 <div class="text-center py-5">
                     <i class="fas fa-newspaper fa-4x text-muted mb-3"></i>
@@ -368,28 +390,18 @@ ob_start();
                                     <label for="edit_news_title" class="form-label">Título</label>
                                     <input type="text" class="form-control" id="edit_news_title" name="title" required>
                                 </div>
-                                
                                 <div class="mb-3">
                                     <label for="edit_news_summary" class="form-label">Resumen</label>
                                     <textarea class="form-control" id="edit_news_summary" name="summary" rows="3"></textarea>
                                 </div>
-                                
                                 <div class="mb-3">
                                     <label for="edit_news_content" class="form-label">Contenido</label>
                                     <textarea class="form-control" id="edit_news_content" name="content" rows="8" required></textarea>
                                 </div>
+                                <!-- El campo autor NO se muestra ni se edita aquí -->
                             </div>
-                            
                             <div class="col-md-4">
-                                <div class="mb-3">
-                                    <label for="edit_news_section" class="form-label">Sección</label>
-                                    <select class="form-control" id="edit_news_section" name="section_id" required>
-                                        <?php foreach ($sections as $section): ?>
-                                        <option value="<?= $section['id'] ?>"><?= htmlspecialchars($section['name']) ?></option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                </div>
-                                
+                                <!-- Campo sección eliminado, todas son noticias -->
                                 <div class="mb-3">
                                     <label for="edit_news_status" class="form-label">Estado</label>
                                     <select class="form-control" id="edit_news_status" name="status" required>
@@ -397,19 +409,21 @@ ob_start();
                                         <option value="published">Publicado</option>
                                     </select>
                                 </div>
-                                
                                 <div class="mb-3">
                                     <label for="edit_news_image" class="form-label">Nueva Imagen (opcional)</label>
                                     <input type="file" class="form-control" id="edit_news_image" name="image" accept="image/*">
                                     <small class="text-muted">Dejar vacío para mantener la imagen actual</small>
                                 </div>
-                                
+                                <div class="mb-3">
+                                    <label for="edit_news_video" class="form-label">Nuevo Video (opcional)</label>
+                                    <input type="file" class="form-control" id="edit_news_video" name="video" accept="video/*">
+                                    <small class="text-muted">Dejar vacío para mantener el video actual</small>
+                                </div>
                                 <div class="mb-3" id="current_image_preview">
                                     <!-- Se mostrará la imagen actual aquí -->
                                 </div>
                             </div>
                         </div>
-                        
                         <input type="hidden" id="edit_news_id" name="news_id">
                     </div>
                     <div class="modal-footer">
@@ -490,7 +504,7 @@ ob_start();
             document.getElementById('edit_news_title').value = news.title;
             document.getElementById('edit_news_summary').value = news.summary || '';
             document.getElementById('edit_news_content').value = news.content;
-            document.getElementById('edit_news_section').value = news.section_id;
+            // Se eliminó el campo edit_news_section
             document.getElementById('edit_news_status').value = news.status;
             
             // Mostrar imagen actual si existe

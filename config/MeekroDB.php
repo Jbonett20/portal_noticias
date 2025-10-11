@@ -54,8 +54,10 @@ class MeekroDB {
         if (!empty($params)) {
             $types = '';
             $values = [];
-            
             foreach ($params as $param) {
+                if (is_array($param)) {
+                    throw new Exception('MeekroDB error: Se pasó un array como parámetro a la consulta. Verifica que todos los parámetros sean valores simples (int, float, string).');
+                }
                 if (is_int($param)) {
                     $types .= 'i';
                 } elseif (is_float($param)) {
@@ -65,7 +67,6 @@ class MeekroDB {
                 }
                 $values[] = $param;
             }
-            
             $stmt->bind_param($types, ...$values);
         }
         

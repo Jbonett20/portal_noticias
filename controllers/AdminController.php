@@ -495,7 +495,7 @@ class AdminController {
         
         header('Content-Type: application/json');
         
-        $newsId = $segments[1] ?? null;
+    $newsId = $_POST['news_id'] ?? ($segments[1] ?? null);
         if (!$newsId) {
             echo json_encode(['success' => false, 'message' => 'ID de noticia no válido']);
             return;
@@ -523,26 +523,36 @@ class AdminController {
                 'title' => $title,
                 'summary' => $summary,
                 'content' => $content,
-                'section_id' => $sectionId,
                 'status' => $status,
                 'updated_at' => date('Y-m-d H:i:s')
             ];
-            
+
             // Manejar imagen si se subió una nueva
             if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
                 $uploadDir = __DIR__ . '/../uploads/news/';
                 if (!is_dir($uploadDir)) {
                     mkdir($uploadDir, 0755, true);
                 }
-                
                 $fileName = time() . '_' . basename($_FILES['image']['name']);
                 $uploadPath = $uploadDir . $fileName;
-                
                 if (move_uploaded_file($_FILES['image']['tmp_name'], $uploadPath)) {
-                    $updateData['image'] = 'uploads/news/' . $fileName;
+                    $updateData['image_url'] = 'uploads/news/' . $fileName;
                 }
             }
-            
+
+            // Manejar video si se subió uno nuevo
+            if (isset($_FILES['video']) && $_FILES['video']['error'] === UPLOAD_ERR_OK) {
+                $videoDir = __DIR__ . '/../uploads/news/videos/';
+                if (!is_dir($videoDir)) {
+                    mkdir($videoDir, 0755, true);
+                }
+                $videoName = time() . '_' . basename($_FILES['video']['name']);
+                $videoPath = $videoDir . $videoName;
+                if (move_uploaded_file($_FILES['video']['tmp_name'], $videoPath)) {
+                    $updateData['video_url'] = 'uploads/news/videos/' . $videoName;
+                }
+            }
+
             $this->newsModel->update($newsId, $updateData);
             echo json_encode(['success' => true, 'message' => 'Noticia actualizada correctamente']);
             
