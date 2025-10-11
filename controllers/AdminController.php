@@ -349,60 +349,81 @@ class AdminController {
     public function newsCreate() {
         require_once __DIR__ . '/../seguridad.php';
         verificarAdmin();
-        
-        $error = '';
-        $success = '';
-        
+
+        header('Content-Type: application/json');
+        $response = ['success' => false, 'message' => ''];
+
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $title = trim($_POST['title'] ?? '');
             $content = trim($_POST['content'] ?? '');
-            $summary = trim($_POST['summary'] ?? $_POST['excerpt'] ?? '');
+            $summary = trim($_POST['summary'] ?? '');
             $status = $_POST['status'] ?? 'draft';
-            
-            if (empty($title) || empty($content)) {
-                $error = 'Título y contenido son obligatorios';
-            } else {
-                try {
-                    // Obtener usuario actual
-                    $currentUser = getCurrentUser();
-                    
-                    $newsData = [
-                        'title' => $title,
-                        'content' => $content,
-                        'summary' => $summary,
-                        'author_id' => $currentUser['id'],
-                        'status' => $status,
-                        'created_at' => date('Y-m-d H:i:s')
-                    ];
-                    
-                    // Manejar imágenes si se subieron
-                    if (!empty($_FILES['images']['name'][0])) {
-                        $images = $this->handleImageUploads($_FILES['images']);
-                        if ($images) {
-                            $newsData['image_url'] = $images[0]; // Primera imagen como principal
-                        }
-                    }
-                    
-                    $newsId = $this->newsModel->create($newsData);
-                    $success = 'Noticia creada exitosamente.';
-                    
-                    // Redirigir después de crear
-                    $_SESSION['success'] = $success;
-                    redirect(BASE_URL . 'admin/news-list');
-                    
-                } catch (Exception $e) {
-                    $error = 'Error al crear la noticia: ' . $e->getMessage();
-                }
+            $sectionId = $_POST['section_id'] ?? null;
+            $author = trim($_POST['author'] ?? '');
+            $publicationDate = $_POST['publication_date'] ?? date('Y-m-d H:i:s');
+
+            if (empty($title) || empty($content) || empty($author)) {
+                $response['message'] = 'Título, contenido y autor son obligatorios';
+                echo json_encode($response);
+                return;
             }
+
+            try {
+                $newsData = [
+                    'title' => $title,
+                    'content' => $content,
+                    'summary' => $summary,
+                    'status' => $status,
+                    'section_id' => $sectionId,
+                    'author' => $author,
+                    'published_at' => $publicationDate,
+                    'created_at' => date('Y-m-d H:i:s')
+                ];
+
+                // Guardar imagen si se subió
+                if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+                    $uploadDir = __DIR__ . '/../uploads/news/';
+                    if (!is_dir($uploadDir)) {
+                        mkdir($uploadDir, 0755, true);
+                    }
+                    $fileName = time() . '_' . basename($_FILES['image']['name']);
+                    $uploadPath = $uploadDir . $fileName;
+                    if (move_uploaded_file($_FILES['image']['tmp_name'], $uploadPath)) {
+                        $newsData['image_url'] = 'uploads/news/' . $fileName;
+                    }
+                }
+
+                // Guardar video si se subió
+                if (isset($_FILES['video']) && $_FILES['video']['error'] === UPLOAD_ERR_OK) {
+                    $videoDir = __DIR__ . '/../uploads/news/videos/';
+                    if (!is_dir($videoDir)) {
+                        mkdir($videoDir, 0755, true);
+                    }
+                    $videoName = time() . '_' . basename($_FILES['video']['name']);
+                    $videoPath = $videoDir . $videoName;
+                    if (move_uploaded_file($_FILES['video']['tmp_name'], $videoPath)) {
+                        $newsData['video_url'] = 'uploads/news/videos/' . $videoName;
+                    }
+                }
+
+                // Guardar noticia en la base de datos
+                $newsId = $this->newsModel->create($newsData);
+                if ($newsId) {
+                    $response['success'] = true;
+                    $response['message'] = 'Noticia creada exitosamente.';
+                } else {
+                    $response['message'] = 'No se pudo crear la noticia.';
+                }
+            } catch (Exception $e) {
+                $response['message'] = 'Error al crear la noticia: ' . $e->getMessage();
+            }
+            echo json_encode($response);
+            return;
         }
-        
-        $data = [
-            'title' => 'Crear Noticia',
-            'error' => $error,
-            'success' => $success
-        ];
-        
-        $this->render('admin/news-create', $data);
+        // Si no es POST, mostrar error
+        $response['message'] = 'Método no permitido';
+        echo json_encode($response);
+        return;
     }
     
     public function newsEdit($segments = []) {

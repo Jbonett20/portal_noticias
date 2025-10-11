@@ -1,3 +1,15 @@
+<script>
+function openCreateNewsModal() {
+    // Busca el modal en la página de noticias y lo abre si existe
+    if (window.bootstrap && document.getElementById('createNewsModal')) {
+        const modal = new bootstrap.Modal(document.getElementById('createNewsModal'));
+        modal.show();
+    } else {
+        // Si no está en esta página, redirige a la lista de noticias donde sí existe el modal
+        window.location.href = '/clone/portal_noticias/admin/news-list';
+    }
+}
+</script>
 <?php
 // Verificar permisos de administrador
 require_once __DIR__ . '/../../seguridad.php';
@@ -212,7 +224,7 @@ ob_start();
                         <a href="<?= BASE_URL ?>news" class="list-group-item list-group-item-action border-0">
                             <i class="bi bi-eye me-2 text-primary"></i>Ver Todas las Noticias
                         </a>
-                        <a href="<?= BASE_URL ?>news/create" class="list-group-item list-group-item-action border-0">
+                        <a href="#" class="list-group-item list-group-item-action border-0" onclick="openCreateNewsModal()">
                             <i class="bi bi-plus-circle me-2 text-success"></i>Crear Nueva Noticia
                         </a>
                         <a href="#" class="list-group-item list-group-item-action border-0" onclick="manageNewsImages()">
