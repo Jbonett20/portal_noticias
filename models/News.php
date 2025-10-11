@@ -7,12 +7,13 @@ class News {
     }
     
     public function create($data) {
+        $authorId = $_SESSION['user']['id'] ?? 1;
         $newsData = [
             'title' => $data['title'],
             'content' => $data['content'],
             'summary' => $data['summary'] ?? $data['excerpt'] ?? '',
             'slug' => $this->generateSlug($data['title']),
-            'author_id' => $data['author_id'],
+            'author_id' => $authorId,
             'is_published' => ($data['status'] === 'published') ? 1 : 0,
             'published_at' => ($data['status'] === 'published') ? date('Y-m-d H:i:s') : null,
             'featured_image' => $data['image_url'] ?? null,
@@ -211,8 +212,9 @@ class News {
     }
     
     private function slugExists($slug) {
-        $sql = "SELECT COUNT(*) FROM news WHERE slug = ?";
-        return $this->db->queryFirstField($sql, [$slug]) > 0;
+        $sql = "SELECT COUNT(*) as count FROM news WHERE slug = ?";
+        $result = $this->db->fetch($sql, [$slug]);
+        return isset($result['count']) && $result['count'] > 0;
     }
     
     // Método específico para el admin - obtener todas las noticias con detalles

@@ -192,10 +192,9 @@ ob_start();
                     </div>
                     <div class="col-auto">
                         <div class="btn-group" role="group">
-                            <a href="index.php?controller=news&action=create" 
-                               class="btn btn-success">
-                                <i class="fas fa-plus"></i> Nueva Noticia
-                            </a>
+                                <button type="button" class="btn btn-success" onclick="openCreateNewsModal()">
+                                    <i class="fas fa-plus"></i> Nueva Noticia
+                                </button>
                             <button type="button" class="btn btn-outline-secondary dropdown-toggle" 
                                     data-bs-toggle="dropdown">
                                 <i class="fas fa-filter"></i> Filtrar
@@ -378,16 +377,111 @@ ob_start();
                     <i class="fas fa-newspaper fa-4x text-muted mb-3"></i>
                     <h4 class="text-muted">No hay noticias</h4>
                     <p class="text-muted">Comienza creando tu primera noticia.</p>
-                    <a href="index.php?controller=news&action=create" class="btn btn-success">
+                    <button type="button" class="btn btn-success" onclick="openCreateNewsModal()">
                         <i class="fas fa-plus"></i> Crear Primera Noticia
-                    </a>
+                    </button>
                 </div>
                 <?php endif; ?>
             </div>
         </div>
     </div>
 
-    <!-- Modal de Edición de Noticia -->
+    <!-- Modal de Creación de Noticia (ubicado al final del body para asegurar funcionalidad) -->
+    </div>
+    <div class="modal fade" id="createNewsModal" tabindex="-1" aria-labelledby="createNewsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title" id="createNewsModalLabel">
+                        <i class="bi bi-plus-circle me-2"></i>Crear Noticia
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="createNewsForm" enctype="multipart/form-data" onsubmit="submitCreateNewsForm(event)">
+                    <div id="createNewsMsg"></div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="mb-3">
+                                    <label for="create_news_title" class="form-label">Título</label>
+                                    <input type="text" class="form-control" id="create_news_title" name="title" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="create_news_summary" class="form-label">Resumen</label>
+                                    <textarea class="form-control" id="create_news_summary" name="summary" rows="3"></textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="create_news_content" class="form-label">Contenido</label>
+                                    <textarea class="form-control" id="create_news_content" name="content" rows="8" required></textarea>
+                                </div>
+                                <input type="hidden" id="create_news_author" name="author" value="<?php echo $_SESSION['user']['username'] ?? 'admin'; ?>">
+                                <input type="hidden" id="create_news_date" name="publication_date" value="<?php echo date('Y-m-d H:i:s'); ?>">
+                            </div>
+                            <div class="col-md-4">
+                                    <input type="hidden" id="create_news_section" name="section_id" value="noticias">
+                                <div class="mb-3">
+                                    <label for="create_news_status" class="form-label">Estado</label>
+                                    <select class="form-control" id="create_news_status" name="status" required>
+                                        <option value="draft">Borrador</option>
+                                        <option value="published">Publicado</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="create_news_image" class="form-label">Imagen</label>
+                                    <input type="file" class="form-control" id="create_news_image" name="image" accept="image/*">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="create_news_video" class="form-label">Video</label>
+                                    <input type="file" class="form-control" id="create_news_video" name="video" accept="video/*">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-success">
+                            <i class="bi bi-check-lg me-1"></i>Crear Noticia
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS y scripts personalizados al final del body -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function openCreateNewsModal() {
+            const modal = new bootstrap.Modal(document.getElementById('createNewsModal'));
+            modal.show();
+        }
+        function submitCreateNewsForm(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            fetch('/admin/news-create', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                const msgDiv = document.getElementById('createNewsMsg');
+                if (data.success) {
+                    msgDiv.innerHTML = `<div class='alert alert-success'><i class='fas fa-check-circle'></i> ${data.message}</div>`;
+                    setTimeout(() => {
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('createNewsModal'));
+                        modal.hide();
+                        location.reload();
+                    }, 1200);
+                } else {
+                    msgDiv.innerHTML = `<div class='alert alert-danger'><i class='fas fa-exclamation-circle'></i> ${data.message}</div>`;
+                }
+            })
+            .catch(error => {
+                const msgDiv = document.getElementById('createNewsMsg');
+                msgDiv.innerHTML = `<div class='alert alert-danger'><i class='fas fa-exclamation-circle'></i> Error de conexión</div>`;
+            });
+        }
+    </script>
     <div class="modal fade" id="editNewsModal" tabindex="-1" aria-labelledby="editNewsModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
@@ -481,6 +575,37 @@ ob_start();
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+            function openCreateNewsModal() {
+                const modal = new bootstrap.Modal(document.getElementById('createNewsModal'));
+                modal.show();
+            }
+
+            function submitCreateNewsForm(event) {
+                event.preventDefault();
+                const formData = new FormData(event.target);
+                fetch('/clone/portal_noticias/admin/news-create', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    const msgDiv = document.getElementById('createNewsMsg');
+                    if (data.success) {
+                        msgDiv.innerHTML = `<div class='alert alert-success'><i class='fas fa-check-circle'></i> ${data.message}</div>`;
+                        setTimeout(() => {
+                            const modal = bootstrap.Modal.getInstance(document.getElementById('createNewsModal'));
+                            modal.hide();
+                            location.reload();
+                        }, 1200);
+                    } else {
+                        msgDiv.innerHTML = `<div class='alert alert-danger'><i class='fas fa-exclamation-circle'></i> ${data.message}</div>`;
+                    }
+                })
+                .catch(error => {
+                    const msgDiv = document.getElementById('createNewsMsg');
+                    msgDiv.innerHTML = `<div class='alert alert-danger'><i class='fas fa-exclamation-circle'></i> Error de conexión</div>`;
+                });
+            }
         // Datos de noticias para el modal
         const newsData = <?= json_encode($allNews ?? []) ?>;
         
