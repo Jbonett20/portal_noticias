@@ -126,6 +126,8 @@ class Business {
             'phone' => $data['phone'] ?? null,
             'address' => $data['address'] ?? null,
             'is_published' => $data['is_published'] ?? 1,
+            'is_open' => isset($data['is_open']) ? $data['is_open'] : 1,
+            'closed_reason' => isset($data['closed_reason']) ? $data['closed_reason'] : null,
             'updated_at' => date('Y-m-d H:i:s')
         ];
         

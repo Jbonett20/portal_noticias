@@ -243,12 +243,12 @@ ob_start();
                             <div class="mb-3">
                                 <label class="form-label">Imagen actual</label>
                                 <div id="edit_business_image_preview"></div>
-                                <input type="file" class="form-control mt-2" id="edit_business_image" name="image" accept="image/*">
+                                <input type="file" class="form-control mt-2" id="edit_business_image" name="image">
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Video actual</label>
                                 <div id="edit_business_video_preview"></div>
-                                <input type="file" class="form-control mt-2" id="edit_business_video" name="video" accept="video/*">
+                                <input type="file" class="form-control mt-2" id="edit_business_video" name="video">
                             </div>
                         </div>
                     </div>
@@ -426,7 +426,7 @@ function openEditBusinessModal(businessId) {
             document.getElementById('edit_business_address').value = b.address || '';
             document.getElementById('edit_business_phone').value = b.phone || '';
             document.getElementById('edit_business_website').value = b.website || '';
-            document.getElementById('edit_business_is_open').value = b.is_open;
+            document.getElementById('edit_business_is_open').value = (b.is_open === null || b.is_open === undefined) ? '1' : String(b.is_open);
             document.getElementById('edit_business_closed_reason').value = b.closed_reason || '';
             toggleClosedReason();
             // Imagen actual
