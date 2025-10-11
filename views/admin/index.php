@@ -144,7 +144,7 @@ ob_start();
                         <!-- Crear Noticia -->
                         <div class="col-lg-4 col-md-6">
                             <div class="d-grid">
-                                <a href="<?= BASE_URL ?>news/create" class="btn btn-warning btn-lg">
+                                <a href="<?= BASE_URL ?>admin/news-list" class="btn btn-warning btn-lg">
                                     <i class="bi bi-newspaper me-2"></i>Crear Noticia
                                 </a>
                             </div>

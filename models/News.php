@@ -127,15 +127,18 @@ class News {
             'published_at' => ($data['status'] === 'published') ? date('Y-m-d H:i:s') : null,
             'updated_at' => date('Y-m-d H:i:s')
         ];
-        
+
         // Agregar campos opcionales si están presentes y existen en la tabla
         if (isset($data['image_url'])) {
             $updateData['featured_image'] = $data['image_url'];
         }
-        
+        if (isset($data['video_url'])) {
+            $updateData['video_url'] = $data['video_url'];
+        }
+
         // Nota: section_id y business_id no están disponibles en la tabla actual
-        
-        return $this->db->update('news', $updateData, 'id = ?', [$id]);
+
+        return $this->db->update('news', $updateData, 'id = ?', $id);
     }
     
     public function delete($id) {
