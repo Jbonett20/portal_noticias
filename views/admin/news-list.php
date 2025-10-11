@@ -130,22 +130,52 @@ ob_start();
                                 <i class="fas fa-filter"></i> Filtrar
                             </button>
                             <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="?controller=news&action=admin&status=all">
+                                <li><a class="dropdown-item" href="#" onclick="filterNews('all'); return false;">
                                     <i class="fas fa-list"></i> Todas
                                 </a></li>
-                                <li><a class="dropdown-item" href="?controller=news&action=admin&status=published">
+                                <li><a class="dropdown-item" href="#" onclick="filterNews('Publicada'); return false;">
                                     <i class="fas fa-check-circle text-success"></i> Publicadas
                                 </a></li>
-                                <li><a class="dropdown-item" href="?controller=news&action=admin&status=draft">
+                                <li><a class="dropdown-item" href="#" onclick="filterNews('Borrador'); return false;">
                                     <i class="fas fa-edit text-warning"></i> Borradores
                                 </a></li>
                             </ul>
+<script>
+// Filtrar noticias en la tabla sin recargar
+function filterNews(status) {
+    // Busca la tabla existente y oculta/muestra filas según el estado
+    const table = document.querySelector('#newsTableContainer table');
+    if (!table) return;
+    const rows = table.querySelectorAll('tbody tr');
+    let statusNormalized = status.toLowerCase();
+    rows.forEach(row => {
+        // Busca la celda de estado (5ta celda, índice 4)
+        const statusCell = row.cells[4];
+        if (!statusCell) return;
+        // Extrae el texto visual del estado (ej: 'Publicada', 'Borrador', 'Archivada')
+        let cellText = statusCell.textContent.trim().toLowerCase();
+        // Si el filtro es 'all', mostrar todo
+        if (statusNormalized === 'all') {
+            row.style.display = '';
+        } else if (
+            (statusNormalized === 'publicada' && cellText.includes('publicada')) ||
+            (statusNormalized === 'borrador' && cellText.includes('borrador')) ||
+            (statusNormalized === 'archivada' && cellText.includes('archivada'))
+        ) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+}
+</script>
                         </div>
                     </div>
                 </div>
             </div>
 
             <div class="card-body">
+                <div id="newsTableContainer">
                 <?php
                 // PAGINACIÓN PHP
                 $allNews = $news ?? [];
@@ -341,6 +371,26 @@ ob_start();
 
     <!-- Bootstrap JS y scripts personalizados al final del body -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+function reloadNewsTable() {
+    fetch('index.php?controller=admin&action=newsList&ajax=1')
+        .then(response => response.json())
+        .then(data => {
+            const tableContainer = document.getElementById('newsTableContainer');
+            if (!tableContainer) return;
+            if (!data.news || data.news.length === 0) {
+                tableContainer.innerHTML = `<div class='text-center py-5'><i class='fas fa-newspaper fa-4x text-muted mb-3'></i><h4 class='text-muted'>No hay noticias</h4><p class='text-muted'>Comienza creando tu primera noticia.</p><button type='button' class='btn btn-success' onclick='openCreateNewsModal()'><i class='fas fa-plus'></i> Crear Primera Noticia</button></div>`;
+                return;
+            }
+            let html = `<div class='table-responsive'><table class='table table-hover'><thead class='table-dark'><tr><th>Imagen</th><th>Título</th><th>Categoría</th><th>Autor</th><th>Estado</th><th>Vistas</th><th>Fecha</th><th>Acciones</th></tr></thead><tbody>`;
+            data.news.forEach(n => {
+                html += `<tr><td><img src='${n.image_url || ''}' class='news-image' alt=''></td><td>${n.title}</td><td>${n.category || ''}</td><td>${n.author_name || ''}</td><td>${n.status}</td><td>${n.views || 0}</td><td>${n.created_at || ''}</td><td><div class='table-actions'><button class='btn btn-outline-warning btn-xs rounded-pill px-2 py-0' onclick='openEditNewsModal(${n.id})' title='Editar noticia'><i class='bi bi-pencil'></i></button><button class='btn btn-danger btn-xs rounded-pill px-2 py-0' onclick='deleteNews(${n.id})' title='Eliminar noticia'><i class='bi bi-trash'></i></button></div></td></tr>`;
+            });
+            html += `</tbody></table></div>`;
+            tableContainer.innerHTML = html;
+        });
+}
+</script>
     <script>
         function openCreateNewsModal() {
             const modal = new bootstrap.Modal(document.getElementById('createNewsModal'));
@@ -349,7 +399,7 @@ ob_start();
         function submitCreateNewsForm(event) {
             event.preventDefault();
             const formData = new FormData(event.target);
-            fetch('/admin/news-create', {
+            fetch('index.php?controller=admin&action=newsCreate', {
                 method: 'POST',
                 body: formData
             })
@@ -599,24 +649,48 @@ ob_start();
         
         document.getElementById('confirmDelete').addEventListener('click', function() {
             if (deleteNewsId) {
-                const form = document.createElement('form');
-                form.method = 'POST';
-                form.action = 'index.php?controller=news&action=delete';
-                
-                const idInput = document.createElement('input');
-                idInput.type = 'hidden';
-                idInput.name = 'id';
-                idInput.value = deleteNewsId;
-                
-                const csrfInput = document.createElement('input');
-                csrfInput.type = 'hidden';
-                csrfInput.name = 'csrf_token';
-                csrfInput.value = '<?php echo generarTokenCSRF(); ?>';
-                
-                form.appendChild(idInput);
-                form.appendChild(csrfInput);
-                document.body.appendChild(form);
-                form.submit();
+                fetch('index.php?controller=admin&action=newsDelete', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `id=${deleteNewsId}&csrf_token=<?php echo generarTokenCSRF(); ?>`
+                })
+                .then(response => response.text())
+                .then(data => {
+                    // Cerrar el modal de confirmación
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('deleteModal'));
+                    modal.hide();
+                    let responseJson;
+                    try {
+                        responseJson = JSON.parse(data);
+                    } catch (e) {
+                        responseJson = { success: false, message: 'Respuesta inválida del servidor' };
+                    }
+                    if (responseJson.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Noticia eliminada',
+                            text: responseJson.message || 'La noticia fue eliminada correctamente',
+                            showConfirmButton: false,
+                            timer: 100,
+                            willClose: () => { reloadNewsTable(); }
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: responseJson.message || 'No se pudo eliminar la noticia'
+                        });
+                    }
+                })
+                .catch(error => {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'No se pudo eliminar la noticia'
+                    });
+                });
             }
         });
     </script>
