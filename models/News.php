@@ -142,7 +142,7 @@ class News {
     }
     
     public function delete($id) {
-        return $this->db->delete('news', 'id = ?', [$id]);
+    return $this->db->delete('news', 'id = ?', $id);
     }
     
     public function publish($id) {

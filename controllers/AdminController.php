@@ -565,15 +565,16 @@ class AdminController {
         require_once __DIR__ . '/../seguridad.php';
         verificarAdmin();
         
-        $newsId = $segments[1] ?? null;
+        // Permitir eliminar por AJAX (POST) o por segmento
+        $newsId = $_POST['id'] ?? $segments[1] ?? null;
+        header('Content-Type: application/json');
         if (!$newsId) {
-            redirect(BASE_URL . 'admin/news-list');
+            echo json_encode(['success' => false, 'message' => 'ID de noticia no válido']);
+            return;
         }
-        
         try {
             // Obtener datos de la noticia para eliminar archivos
             $news = $this->newsModel->findById($newsId);
-            
             // Eliminar archivos de imagen si existen
             if ($news && !empty($news['image_url'])) {
                 $imagePath = __DIR__ . '/../uploads/news/' . basename($news['image_url']);
@@ -581,14 +582,11 @@ class AdminController {
                     unlink($imagePath);
                 }
             }
-            
             $this->newsModel->delete($newsId);
-            $_SESSION['success'] = 'Noticia eliminada exitosamente';
+            echo json_encode(['success' => true, 'message' => 'Noticia eliminada exitosamente']);
         } catch (Exception $e) {
-            $_SESSION['error'] = 'Error al eliminar la noticia: ' . $e->getMessage();
+            echo json_encode(['success' => false, 'message' => 'Error al eliminar la noticia: ' . $e->getMessage()]);
         }
-        
-        redirect(BASE_URL . 'admin/news-list');
     }
     
     // ===== GESTIÓN DE NEGOCIOS =====
