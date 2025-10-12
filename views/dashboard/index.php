@@ -112,96 +112,135 @@ ob_start();
                             </div>
                             <div class="card-body">
                                 <div class="d-flex align-items-start">
-                                    <?php if ($business['logo_path']): ?>
-                                        <img src="<?= UPLOAD_URL . $business['logo_path'] ?>" 
-                                             class="business-logo me-3" alt="Logo">
-                                    <?php else: ?>
-                                        <div class="business-logo-placeholder me-3">
-                                            <i class="bi bi-shop"></i>
+                                    <div class="card">
+                                        <div class="card-header d-flex justify-content-between align-items-center">
+                                            <h5 class="mb-0">
+                                                <i class="bi bi-shop"></i> <?= $user['role'] === 'admin' ? 'Todos los Negocios' : 'Mis Negocios' ?>
+                                            </h5>
+                                            <div class="w-50">
+                                                <input type="text" id="businessSearch" class="form-control" placeholder="Buscar por nombre, sección, propietario...">
+                                            </div>
                                         </div>
-                                    <?php endif; ?>
-                                    <div class="flex-grow-1">
-                                        <p class="text-muted small mb-1">
-                                            <i class="bi bi-tag"></i> <?= htmlspecialchars($business['section_title'] ?? 'Sin sección') ?>
-                                        </p>
-                                        <?php if ($business['short_description']): ?>
-                                            <p class="small text-muted mb-2"><?= htmlspecialchars($business['short_description']) ?></p>
-                                        <?php endif; ?>
-                                        <div class="status-info">
-                                            <?php if ($business['is_open'] == 1): ?>
-                                                <span class="badge bg-success">
-                                                    <i class="bi bi-check-circle"></i> Abierto
-                                                </span>
+                                        <div class="card-body">
+                                            <?php
+                                            // Paginación en PHP
+                                            $page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
+                                            $perPage = 10;
+                                            $filteredBusinesses = $businesses;
+                                            $total = count($filteredBusinesses);
+                                            $totalPages = ceil($total / $perPage);
+                                            $start = ($page - 1) * $perPage;
+                                            $pagedBusinesses = array_slice($filteredBusinesses, $start, $perPage);
+                                            ?>
+                                            <?php if (empty($pagedBusinesses)): ?>
+                                                <div class="text-center py-4">
+                                                    <i class="bi bi-shop" style="font-size: 3rem; color: #ccc;"></i>
+                                                    <h4 class="mt-3 text-muted">No hay negocios</h4>
+                                                    <p class="text-muted">
+                                                        <?= $user['role'] === 'admin' ? 'No hay negocios registrados en el sistema.' : 'Aún no tienes negocios registrados.' ?>
+                                                    </p>
+                                                    <a href="<?= BASE_URL ?>dashboard/business/create" class="btn btn-primary">
+                                                        <i class="bi bi-plus-circle"></i> Crear Primer Negocio
+                                                    </a>
+                                                </div>
                                             <?php else: ?>
-                                                <span class="badge bg-danger">
-                                                    <i class="bi bi-x-circle"></i> Cerrado
-                                                </span>
-                                                <?php if ($business['closed_reason']): ?>
-                                                    <small class="text-muted d-block mt-1">
-                                                        <?= htmlspecialchars($business['closed_reason']) ?>
-                                                    </small>
+                                                <div class="row" id="businessList">
+                                                    <?php foreach ($pagedBusinesses as $business): ?>
+                                                    <div class="col-md-6 col-lg-4 mb-4 business-item">
+                                                        <div class="card h-100 business-card" data-business-id="<?= $business['id'] ?>">
+                                                            <div class="card-header d-flex justify-content-between align-items-center">
+                                                                <div class="d-flex align-items-center">
+                                                                    <div class="status-indicator me-2" title="<?= $business['is_open'] == 1 ? 'Abierto' : 'Cerrado' . ($business['closed_reason'] ? ': ' . $business['closed_reason'] : '') ?>">
+                                                                        <span class="status-dot <?= $business['is_open'] == 1 ? 'status-open' : 'status-closed' ?>"></span>
+                                                                    </div>
+                                                                    <h6 class="mb-0"><?= htmlspecialchars($business['name']) ?></h6>
+                                                                </div>
+                                                            </div>
+                                                            <div class="card-body">
+                                                                <div class="d-flex align-items-start">
+                                                                    <?php if ($business['logo_path']): ?>
+                                                                        <img src="<?= UPLOAD_URL . $business['logo_path'] ?>" class="business-logo me-3" alt="Logo">
+                                                                    <?php else: ?>
+                                                                        <div class="business-logo-placeholder me-3">
+                                                                            <i class="bi bi-shop"></i>
+                                                                        </div>
+                                                                    <?php endif; ?>
+                                                                    <div class="flex-grow-1">
+                                                                        <p class="text-muted small mb-1">
+                                                                            <i class="bi bi-tag"></i> <?= htmlspecialchars($business['section_title'] ?? 'Sin sección') ?>
+                                                                        </p>
+                                                                        <?php if ($business['short_description']): ?>
+                                                                            <p class="small text-muted mb-2"><?= htmlspecialchars($business['short_description']) ?></p>
+                                                                        <?php endif; ?>
+                                                                        <div class="status-info">
+                                                                            <?php if ($business['is_open'] == 1): ?>
+                                                                                <span class="badge bg-success">
+                                                                                    <i class="bi bi-check-circle"></i> Abierto
+                                                                                </span>
+                                                                            <?php else: ?>
+                                                                                <span class="badge bg-danger">
+                                                                                    <i class="bi bi-x-circle"></i> Cerrado
+                                                                                </span>
+                                                                                <?php if ($business['closed_reason']): ?>
+                                                                                    <small class="text-muted d-block mt-1">
+                                                                                        <?= htmlspecialchars($business['closed_reason']) ?>
+                                                                                    </small>
+                                                                                <?php endif; ?>
+                                                                            <?php endif; ?>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="card-footer bg-transparent">
+                                                                <div class="d-flex justify-content-between align-items-center">
+                                                                    <small class="text-muted">
+                                                                        Estado: <span class="badge bg-<?= getStatusBadgeColor($business['status']) ?>">
+                                                                            <?= ucfirst($business['status']) ?>
+                                                                        </span>
+                                                                    </small>
+                                                                    <div class="btn-group btn-group-sm">
+                                                                        <button class="btn btn-outline-secondary" title="Editar" onclick="openEditBusinessModal(<?= $business['id'] ?>)">
+                                                                            <i class="bi bi-pencil"></i>
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <?php endforeach; ?>
+                                                </div>
+                                                <?php if ($totalPages > 1): ?>
+                                                <nav class="mt-3 mb-2">
+                                                    <ul class="pagination justify-content-center">
+                                                        <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                                                            <li class="page-item <?= $i == $page ? 'active' : '' ?>">
+                                                                <a class="page-link" href="?page=<?= $i ?>"><?= $i ?></a>
+                                                            </li>
+                                                        <?php endfor; ?>
+                                                    </ul>
+                                                </nav>
                                                 <?php endif; ?>
                                             <?php endif; ?>
                                         </div>
                                     </div>
-                                </div>
-                            </div>
-                            <div class="card-footer bg-transparent">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <small class="text-muted">
-                                        Estado: <span class="badge bg-<?= getStatusBadgeColor($business['status']) ?>">
-                                            <?= ucfirst($business['status']) ?>
-                                        </span>
-                                    </small>
-                                    <div class="btn-group btn-group-sm">
-                                        <button class="btn btn-outline-secondary" title="Editar" onclick="openEditBusinessModal(<?= $business['id'] ?>)">
-                                            <i class="bi bi-pencil"></i>
-                                        </button>
-<!-- Modal Edición Negocio (solo uno en el DOM) -->
-<div class="modal fade" id="editBusinessModal" tabindex="-1" aria-labelledby="editBusinessModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl">
-        <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title" id="editBusinessModalLabel">
-                    <i class="bi bi-pencil-square me-2"></i> Editar Negocio
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <form id="editBusinessForm" enctype="multipart/form-data" onsubmit="submitEditBusinessForm(event)">
-                <div class="modal-body">
-                    <div id="editBusinessMsg"></div>
-                    <input type="hidden" id="edit_business_id" name="business_id">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="edit_business_section_id" class="form-label">Sección</label>
-                                <select class="form-select" id="edit_business_section_id" name="section_id" required>
-                                    <?php foreach ($sections as $section): ?>
-                                        <option value="<?= $section['id'] ?>" <?= (isset($business) && $business['section_id'] == $section['id']) ? 'selected' : '' ?>><?= htmlspecialchars($section['title']) ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label for="edit_business_name" class="form-label">Nombre</label>
-                                <input type="text" class="form-control" id="edit_business_name" name="name" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="edit_business_short_description" class="form-label">Descripción corta</label>
-                                <input type="text" class="form-control" id="edit_business_short_description" name="short_description">
-                            </div>
-                            <div class="mb-3">
-                                <label for="edit_business_description" class="form-label">Descripción completa</label>
-                                <textarea class="form-control" id="edit_business_description" name="description" rows="4"></textarea>
-                            </div>
-                            <div class="mb-3">
-                                <label for="edit_business_advertisement_text" class="form-label">Texto publicitario</label>
-                                <textarea class="form-control" id="edit_business_advertisement_text" name="advertisement_text" rows="2"></textarea>
-                            </div>
-                            <div class="mb-3">
-                                <label for="edit_business_address" class="form-label">Dirección</label>
-                                <input type="text" class="form-control" id="edit_business_address" name="address">
-                            </div>
-                            <div class="mb-3">
+<script>
+// Filtrado en tiempo real por búsqueda
+document.getElementById('businessSearch').addEventListener('input', function() {
+    const search = this.value.toLowerCase();
+    document.querySelectorAll('.business-item').forEach(function(card) {
+        const name = card.querySelector('.card-header h6').textContent.toLowerCase();
+        const section = card.querySelector('.card-body .bi-tag').parentElement.textContent.toLowerCase();
+        let owner = '';
+        const ownerBadge = card.querySelector('.card-footer .badge');
+        if (ownerBadge) owner = ownerBadge.textContent.toLowerCase();
+        if (name.includes(search) || section.includes(search) || owner.includes(search)) {
+            card.style.display = '';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+});
+</script>
                                 <label for="edit_business_phone" class="form-label">Teléfono</label>
                                 <input type="text" class="form-control" id="edit_business_phone" name="phone">
                             </div>

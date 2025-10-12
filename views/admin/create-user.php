@@ -100,13 +100,16 @@ ob_start();
                                         <i class="bi bi-shield"></i> Rol *
                                     </label>
                                     <select class="form-select" id="role" name="role" required>
-                                        <option value="user" <?= ($_POST['role'] ?? '') === 'user' ? 'selected' : '' ?>>
+                                        <option value="user" <?= ($_POST['role'] ?? '') === 'user' ? 'selected' : '' ?> >
                                             Usuario Básico (Solo lectura)
                                         </option>
-                                        <option value="editor" <?= ($_POST['role'] ?? '') === 'editor' ? 'selected' : '' ?>>
+                                        <option value="editor" <?= ($_POST['role'] ?? '') === 'editor' ? 'selected' : '' ?> >
                                             Editor/Propietario de Negocio
                                         </option>
-                                        <option value="admin" <?= ($_POST['role'] ?? '') === 'admin' ? 'selected' : '' ?>>
+                                        <option value="redactor" <?= ($_POST['role'] ?? '') === 'redactor' ? 'selected' : '' ?> >
+                                            Redactor (solo crear/editar noticias)
+                                        </option>
+                                        <option value="admin" <?= ($_POST['role'] ?? '') === 'admin' ? 'selected' : '' ?> >
                                             Administrador
                                         </option>
                                     </select>
@@ -137,6 +140,7 @@ ob_start();
                             <ul class="mb-0 mt-2">
                                 <li><strong>Usuario Básico:</strong> Solo puede ver contenido público</li>
                                 <li><strong>Editor:</strong> Puede gestionar su negocio y publicar noticias</li>
+                                <li><strong>Redactor:</strong> Solo puede crear y editar noticias</li>
                                 <li><strong>Administrador:</strong> Control total del sistema</li>
                             </ul>
                         </div>

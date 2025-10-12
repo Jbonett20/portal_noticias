@@ -46,14 +46,17 @@ ob_start();
     <?php endif; ?>
 
     <div class="card">
-        <div class="card-header">
+        <div class="card-header d-flex justify-content-between align-items-center">
             <h5 class="mb-0">
                 <i class="bi bi-list"></i> Lista de Negocios
             </h5>
+            <div class="w-50">
+                <input type="text" id="businessSearch" class="form-control" placeholder="Buscar por cualquier columna...">
+            </div>
         </div>
         <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table table-striped mb-0">
+                <table class="table table-striped mb-0" id="businessTable">
                     <thead class="table-dark">
                         <tr>
                             <th>ID</th>
@@ -66,7 +69,7 @@ ob_start();
                             <th>Acciones</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="businessTableBody">
                         <?php if (empty($businesses)): ?>
                         <tr>
                             <td colspan="8" class="text-center text-muted py-4">
@@ -76,7 +79,7 @@ ob_start();
                         </tr>
                         <?php else: ?>
                         <?php foreach ($businesses as $business): ?>
-                        <tr>
+                        <tr class="business-row">
                             <td><?= $business['id'] ?></td>
                             <td>
                                 <div>
@@ -129,8 +132,51 @@ ob_start();
                     </tbody>
                 </table>
             </div>
+            <nav class="mt-3 mb-2">
+                <ul class="pagination justify-content-center" id="businessPagination"></ul>
+            </nav>
         </div>
     </div>
+<script>
+// --- Filtrado y paginación frontend ---
+const rows = Array.from(document.querySelectorAll('.business-row'));
+const searchInput = document.getElementById('businessSearch');
+const pagination = document.getElementById('businessPagination');
+const tableBody = document.getElementById('businessTableBody');
+const perPage = 10;
+let currentPage = 1;
+
+function renderTable() {
+    let filtered = rows.filter(row => {
+        const search = searchInput.value.trim().toLowerCase();
+        if (!search) return true;
+        return Array.from(row.children).some(td => td.textContent.toLowerCase().includes(search));
+    });
+    // Paginación
+    const totalPages = Math.max(1, Math.ceil(filtered.length / perPage));
+    currentPage = Math.min(currentPage, totalPages);
+    const start = (currentPage - 1) * perPage;
+    const end = start + perPage;
+    // Render rows
+    tableBody.innerHTML = '';
+    filtered.slice(start, end).forEach(row => tableBody.appendChild(row));
+    // Render paginación
+    pagination.innerHTML = '';
+    for (let i = 1; i <= totalPages; i++) {
+        const li = document.createElement('li');
+        li.className = 'page-item' + (i === currentPage ? ' active' : '');
+        const a = document.createElement('a');
+        a.className = 'page-link';
+        a.textContent = i;
+        a.href = '#';
+        a.onclick = e => { e.preventDefault(); currentPage = i; renderTable(); };
+        li.appendChild(a);
+        pagination.appendChild(li);
+    }
+}
+searchInput.addEventListener('input', () => { currentPage = 1; renderTable(); });
+window.addEventListener('DOMContentLoaded', renderTable);
+</script>
 
     <!-- Resumen de Negocios -->
     <?php if (!empty($businesses)): ?>
