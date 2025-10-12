@@ -119,6 +119,7 @@ class Business {
             'slug' => $this->generateSlug($data['name']),
             'short_description' => $data['short_description'] ?? null,
             'description' => $data['description'] ?? null,
+            'advertisement_text' => $data['advertisement_text'] ?? null,
             'mission' => $data['mission'] ?? null,
             'vision' => $data['vision'] ?? null,
             'logo_path' => $data['logo_path'] ?? null,
