@@ -63,20 +63,44 @@ class DashboardController {
                 $uploadPath = $this->uploadBusinessImage($_FILES['image']);
                 $this->db->query("INSERT INTO business_images (business_id, image_path, uploaded_by, uploaded_at) VALUES (?, ?, ?, NOW())", [$businessId, $uploadPath, getCurrentUser()['id']]);
             }
-            // Video
-            if (isset($_FILES['video']) && $_FILES['video']['error'] === UPLOAD_ERR_OK) {
-                // Guardar video como archivo o URL
-                $videoUrl = '';
-                if (!empty($_POST['video_url'])) {
-                    $videoUrl = $_POST['video_url'];
-                } else {
-                    // Si es archivo subido
-                    $videoPath = 'businesses/videos/' . uniqid('video_') . '_' . $_FILES['video']['name'];
-                    move_uploaded_file($_FILES['video']['tmp_name'], UPLOAD_PATH . $videoPath);
-                    $videoUrl = UPLOAD_URL . $videoPath;
+
+            // VIDEO: Eliminar anterior y guardar nuevo
+            // Buscar video anterior
+            $oldVideo = $this->db->fetch("SELECT id, video_type, video_path FROM business_videos WHERE business_id = ? AND is_active = 1 ORDER BY created_at DESC LIMIT 1", [$businessId]);
+            if ($oldVideo) {
+                // Eliminar archivo si era upload
+                if ($oldVideo['video_type'] === 'upload' && !empty($oldVideo['video_path'])) {
+                    $oldPath = UPLOAD_PATH . $oldVideo['video_path'];
+                    if (file_exists($oldPath)) {
+                        @unlink($oldPath);
+                    }
                 }
-                $this->db->query("INSERT INTO business_videos (business_id, video_url, is_active, uploaded_by, created_at) VALUES (?, ?, 1, ?, NOW())", [$businessId, $videoUrl, getCurrentUser()['id']]);
+                // Eliminar registro anterior
+                $this->db->query("DELETE FROM business_videos WHERE id = ?", [$oldVideo['id']]);
             }
+
+            // Guardar nuevo video si se envía
+            $video_type = $_POST['video_type'] ?? '';
+            $video_url = $_POST['video_url'] ?? '';
+            $video_title = $_POST['video_title'] ?? '';
+            $video_description = $_POST['video_description'] ?? '';
+            $video_path = '';
+            if ($video_type === 'upload' && isset($_FILES['video_file']) && $_FILES['video_file']['error'] === UPLOAD_ERR_OK) {
+                $video_path = 'businesses/videos/' . uniqid('video_') . '_' . $_FILES['video_file']['name'];
+                move_uploaded_file($_FILES['video_file']['tmp_name'], UPLOAD_PATH . $video_path);
+            }
+            $this->db->query(
+                "INSERT INTO business_videos (business_id, video_type, video_url, video_path, title, description, is_active, uploaded_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, 1, ?, NOW(), NOW())",
+                [
+                    $businessId,
+                    $video_type,
+                    $video_url,
+                    $video_path,
+                    $video_title,
+                    $video_description,
+                    getCurrentUser()['id']
+                ]
+            );
             header('Content-Type: application/json');
             echo json_encode(['success' => true, 'message' => 'Negocio actualizado correctamente']);
         } catch (Exception $e) {

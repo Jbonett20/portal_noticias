@@ -230,7 +230,31 @@ ob_start();
                             <div class="mb-3">
                                 <label class="form-label">Video actual</label>
                                 <div id="edit_business_video_preview"></div>
-                                <input type="file" class="form-control mt-2" id="edit_business_video" name="video">
+                                   <div class="mb-2">
+                                       <label for="edit_business_video_type" class="form-label">Tipo de video</label>
+                                       <select class="form-select" id="edit_business_video_type" name="video_type">
+                                           <option value="">Selecciona tipo</option>
+                                           <option value="youtube">YouTube</option>
+                                           <option value="vimeo">Vimeo</option>
+                                           <option value="upload">Subir archivo</option>
+                                       </select>
+                                   </div>
+                                   <div class="mb-2" id="edit_business_video_url_group" style="display:none;">
+                                       <label for="edit_business_video_url" class="form-label">URL del video</label>
+                                       <input type="url" class="form-control" id="edit_business_video_url" name="video_url" placeholder="https://www.youtube.com/watch?v=...">
+                                   </div>
+                                   <div class="mb-2" id="edit_business_video_file_group" style="display:none;">
+                                       <label for="edit_business_video_file" class="form-label">Archivo de video</label>
+                                       <input type="file" class="form-control" id="edit_business_video_file" name="video_file" accept="video/*">
+                                   </div>
+                                   <div class="mb-2">
+                                       <label for="edit_business_video_title" class="form-label">Título del video</label>
+                                       <input type="text" class="form-control" id="edit_business_video_title" name="video_title" placeholder="Título descriptivo">
+                                   </div>
+                                   <div class="mb-2">
+                                       <label for="edit_business_video_description" class="form-label">Descripción del video</label>
+                                       <textarea class="form-control" id="edit_business_video_description" name="video_description" rows="2"></textarea>
+                                   </div>
                             </div>
                         </div>
                     </div>
@@ -414,7 +438,27 @@ function openEditBusinessModal(businessId) {
             // Imagen actual
             document.getElementById('edit_business_image_preview').innerHTML = b.image_path ? `<img src='${b.image_path}' alt='Logo' style='max-width:120px;max-height:90px;' class='img-thumbnail'>` : '<small class="text-muted">Sin imagen</small>';
             // Video actual
-            document.getElementById('edit_business_video_preview').innerHTML = b.video_url ? `<video src='${b.video_url}' controls style='max-width:180px;max-height:120px;'></video>` : '<small class="text-muted">Sin video</small>';
+                document.getElementById('edit_business_video_preview').innerHTML = b.video_url ? `<video src='${b.video_url}' controls style='max-width:180px;max-height:120px;'></video>` : '<small class="text-muted">Sin video</small>';
+                // Setear tipo de video y campos
+                const typeSelect = document.getElementById('edit_business_video_type');
+                const urlGroup = document.getElementById('edit_business_video_url_group');
+                const fileGroup = document.getElementById('edit_business_video_file_group');
+                if (typeSelect) {
+                    typeSelect.value = b.video_type || '';
+                    if (b.video_type === 'upload') {
+                        urlGroup.style.display = 'none';
+                        fileGroup.style.display = 'block';
+                    } else if (b.video_type === 'youtube' || b.video_type === 'vimeo') {
+                        urlGroup.style.display = 'block';
+                        fileGroup.style.display = 'none';
+                    } else {
+                        urlGroup.style.display = 'none';
+                        fileGroup.style.display = 'none';
+                    }
+                }
+                document.getElementById('edit_business_video_url').value = b.video_url || '';
+                document.getElementById('edit_business_video_title').value = b.video_title || '';
+                document.getElementById('edit_business_video_description').value = b.video_description || '';
             const modal = new bootstrap.Modal(document.getElementById('editBusinessModal'));
             modal.show();
         });
@@ -534,6 +578,31 @@ function uploadImage() {
 document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('statusClosed').addEventListener('change', toggleClosedReasonField);
     document.getElementById('statusOpen').addEventListener('change', toggleClosedReasonField);
+});
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const typeSelect = document.getElementById('edit_business_video_type');
+    const urlGroup = document.getElementById('edit_business_video_url_group');
+    const fileGroup = document.getElementById('edit_business_video_file_group');
+    if (typeSelect) {
+        typeSelect.addEventListener('change', function() {
+            if (this.value === 'upload') {
+                urlGroup.style.display = 'none';
+                fileGroup.style.display = 'block';
+            } else if (this.value === 'youtube') {
+                urlGroup.style.display = 'block';
+                fileGroup.style.display = 'none';
+                document.getElementById('edit_business_video_url').value = '';
+            } else if (this.value === 'vimeo') {
+                urlGroup.style.display = 'block';
+                fileGroup.style.display = 'none';
+            } else {
+                urlGroup.style.display = 'none';
+                fileGroup.style.display = 'none';
+            }
+        });
+    }
 });
 </script>
 
