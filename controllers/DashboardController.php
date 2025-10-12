@@ -72,12 +72,7 @@ class DashboardController {
                 } else {
                     // Si es archivo subido
                     $videoPath = 'businesses/videos/' . uniqid('video_') . '_' . $_FILES['video']['name'];
-                    $fullVideoPath = UPLOAD_PATH . $videoPath;
-                    $videoDir = dirname($fullVideoPath);
-                    if (!is_dir($videoDir)) {
-                        mkdir($videoDir, 0777, true);
-                    }
-                    move_uploaded_file($_FILES['video']['tmp_name'], $fullVideoPath);
+                    move_uploaded_file($_FILES['video']['tmp_name'], UPLOAD_PATH . $videoPath);
                     $videoUrl = UPLOAD_URL . $videoPath;
                 }
                 $this->db->query("INSERT INTO business_videos (business_id, video_url, is_active, uploaded_by, created_at) VALUES (?, ?, 1, ?, NOW())", [$businessId, $videoUrl, getCurrentUser()['id']]);

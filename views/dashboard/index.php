@@ -109,24 +109,6 @@ ob_start();
                                     </div>
                                     <h6 class="mb-0"><?= htmlspecialchars($business['name']) ?></h6>
                                 </div>
-                                <div class="dropdown">
-                                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
-                                        <i class="bi bi-three-dots"></i>
-                                    </button>
-                                    <ul class="dropdown-menu">
-                                        <li><a class="dropdown-item" href="<?= BASE_URL ?>dashboard/business/edit/<?= $business['id'] ?>">
-                                            <i class="bi bi-pencil"></i> Editar
-                                        </a></li>
-                                        <li><a class="dropdown-item" href="#" onclick="toggleBusinessStatus(<?= $business['id'] ?>, <?= $business['is_open'] == 1 ? 'false' : 'true' ?>)">
-                                            <i class="bi bi-<?= $business['is_open'] == 1 ? 'pause' : 'play' ?>-circle"></i> 
-                                            <?= $business['is_open'] == 1 ? 'Cerrar' : 'Abrir' ?>
-                                        </a></li>
-                                        <li><hr class="dropdown-divider"></li>
-                                        <li><a class="dropdown-item" href="#" onclick="showImageUpload(<?= $business['id'] ?>)">
-                                            <i class="bi bi-image"></i> Subir Imagen
-                                        </a></li>
-                                    </ul>
-                                </div>
                             </div>
                             <div class="card-body">
                                 <div class="d-flex align-items-start">

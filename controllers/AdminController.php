@@ -812,7 +812,7 @@ class AdminController {
         
         header('Content-Type: application/json');
         
-        $businessId = $segments[1] ?? null;
+    $businessId = $_POST['business_id'] ?? ($segments[1] ?? null);
         if (!$businessId) {
             echo json_encode(['success' => false, 'message' => 'ID de negocio no válido']);
             return;
@@ -840,7 +840,7 @@ class AdminController {
         // Verificar si el nombre ya existe (excepto para este negocio)
         $existingBusiness = $this->businessModel->findByName($name);
         if ($existingBusiness && $existingBusiness['id'] != $businessId) {
-            echo json_encode(['success' => false, 'message' => 'Ya existe un negocio con ese nombre']);
+            echo json_encode(['success' => false, 'message' =>$businessId]);
             return;
         }
         
