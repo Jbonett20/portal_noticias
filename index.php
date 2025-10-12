@@ -162,8 +162,12 @@ class Router {
     
     private function getUri() {
         $uri = $_SERVER['REQUEST_URI'];
-        $basePath = '/clone/portal_noticias';
-        $uri = str_replace($basePath, '', $uri);
+        // Detectar basePath dinámicamente según la ubicación del script
+        $scriptName = str_replace('\\', '/', $_SERVER['SCRIPT_NAME']);
+        $basePath = rtrim(dirname($scriptName), '/');
+        if ($basePath !== '' && $basePath !== '/') {
+            $uri = preg_replace('#^' . preg_quote($basePath, '#') . '#', '', $uri);
+        }
         return parse_url($uri, PHP_URL_PATH);
     }
     

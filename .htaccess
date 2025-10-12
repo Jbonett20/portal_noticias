@@ -6,4 +6,4 @@ RewriteCond %{REQUEST_FILENAME} -d
 RewriteRule ^.*$ - [S=40]
 
 # Redirigir todo a index.php
-RewriteRule ^(.*)$ index.php [QSA,L]
+RewriteRule ^(.*)$ index.php?url=$1 [QSA,L]

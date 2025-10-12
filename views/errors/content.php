@@ -6,7 +6,7 @@
                             <i class="bi bi-exclamation-triangle text-warning" style="font-size: 4rem;"></i>
                             <h1 class="h2 mt-3">Error 404</h1>
                             <p class="text-muted">Página no encontrada</p>
-                            <a href="http://localhost/clone/portal_noticias/" class="btn btn-primary">
+                            <a href="http://misproyectos.test/portal_noticias/" class="btn btn-primary">
                                 <i class="bi bi-house"></i> Volver al Inicio
                             </a>
                         </div>

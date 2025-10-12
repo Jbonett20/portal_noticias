@@ -6,7 +6,11 @@ define('DB_USER', 'root');
 define('DB_PASS', '');
 
 // Configuración de la aplicación
-define('BASE_URL', 'http://localhost/clone/portal_noticias/');
+// BASE_URL dinámica según ubicación y dominio
+$base_url = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://" . $_SERVER['HTTP_HOST'];
+$script_name = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME']));
+$base_url .= rtrim($script_name, '/') . '/';
+define('BASE_URL', $base_url);
 define('SITE_NAME', 'Portal de Noticias');
 
 // Configuración de uploads
