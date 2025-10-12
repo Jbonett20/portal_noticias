@@ -115,8 +115,10 @@ ob_start();
                                         <i class="bi bi-shield"></i> Rol *
                                     </label>
                                     <select class="form-select" id="role" name="role" required>
-                                        <option value="1" <?= $user['role'] == 1 ? 'selected' : '' ?>>Administrador</option>
-                                        <option value="2" <?= $user['role'] == 2 ? 'selected' : '' ?>>Editor</option>
+                                        <option value="admin" <?= $user['role'] == 'admin' ? 'selected' : '' ?>>Administrador</option>
+                                        <option value="editor" <?= $user['role'] == 'editor' ? 'selected' : '' ?>>Editor</option>
+                                        <option value="redactor" <?= $user['role'] == 'redactor' ? 'selected' : '' ?>>Redactor</option>
+                                        <option value="user" <?= $user['role'] == 'user' ? 'selected' : '' ?>>Usuario Básico</option>
                                     </select>
                                 </div>
                             </div>

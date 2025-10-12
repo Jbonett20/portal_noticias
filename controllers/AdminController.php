@@ -84,7 +84,7 @@ class AdminController {
             $email = trim($_POST['email'] ?? '');
             $password = $_POST['password'] ?? '';
             $fullName = trim($_POST['full_name'] ?? '');
-            $role = $_POST['role'] ?? 'user';
+            $role = $_POST['role'] ?? 'user'; // Puede ser admin, editor, redactor, user
             $businessId = !empty($_POST['business_id']) ? $_POST['business_id'] : null;
             
             // Validaciones
@@ -147,7 +147,7 @@ class AdminController {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $email = trim($_POST['email'] ?? '');
             $fullName = trim($_POST['full_name'] ?? '');
-            $role = $_POST['role'] ?? 'user';
+            $role = $_POST['role'] ?? 'user'; // Puede ser admin, editor, redactor, user
             $businessId = !empty($_POST['business_id']) ? $_POST['business_id'] : null;
             $password = $_POST['password'] ?? '';
             
