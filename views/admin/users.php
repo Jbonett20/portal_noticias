@@ -67,7 +67,14 @@ ob_start();
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($users as $user): ?>
+                        <?php
+                        $page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
+                        $perPage = 10;
+                        $totalUsers = count($users);
+                        $totalPages = ceil($totalUsers / $perPage);
+                        $start = ($page - 1) * $perPage;
+                        $usersPage = array_slice($users, $start, $perPage);
+                        foreach ($usersPage as $user): ?>
                         <tr>
                             <td><?= $user['id'] ?></td>
                             <td>
@@ -113,7 +120,27 @@ ob_start();
                         </tr>
                         <?php endforeach; ?>
                     </tbody>
-                </table>
+                                </table>
+                                <!-- Paginación -->
+                                <nav aria-label="Paginación de usuarios" class="mt-3">
+                                    <ul class="pagination justify-content-center">
+                                        <?php if ($page > 1): ?>
+                                            <li class="page-item">
+                                                <a class="page-link" href="?page=<?= $page - 1 ?>">Anterior</a>
+                                            </li>
+                                        <?php endif; ?>
+                                        <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                                            <li class="page-item <?= $i == $page ? 'active' : '' ?>">
+                                                <a class="page-link" href="?page=<?= $i ?>"><?= $i ?></a>
+                                            </li>
+                                        <?php endfor; ?>
+                                        <?php if ($page < $totalPages): ?>
+                                            <li class="page-item">
+                                                <a class="page-link" href="?page=<?= $page + 1 ?>">Siguiente</a>
+                                            </li>
+                                        <?php endif; ?>
+                                    </ul>
+                                </nav>
             </div>
         </div>
     </div>
