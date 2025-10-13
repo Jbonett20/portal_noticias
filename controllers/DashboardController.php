@@ -81,6 +81,9 @@ class DashboardController {
 
             // Guardar nuevo video si se envía
             $video_type = $_POST['video_type'] ?? '';
+            if (!in_array($video_type, ['youtube', 'vimeo', 'upload'])) {
+                $video_type = 'youtube';
+            }
             $video_url = $_POST['video_url'] ?? '';
             $video_title = $_POST['video_title'] ?? '';
             $video_description = $_POST['video_description'] ?? '';

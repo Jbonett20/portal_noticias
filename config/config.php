@@ -7,9 +7,11 @@ define('DB_PASS', '');
 
 // Configuración de la aplicación
 // BASE_URL dinámica según ubicación y dominio
+// BASE_URL dinámica y limpia, sin subcarpetas duplicadas
 $base_url = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://" . $_SERVER['HTTP_HOST'];
-$script_name = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME']));
-$base_url .= rtrim($script_name, '/') . '/';
+$base_path = str_replace('\\', '/', $_SERVER['SCRIPT_NAME']);
+$base_path = preg_replace('#/index\.php$#', '', $base_path); // Elimina index.php del final
+$base_url .= rtrim($base_path, '/') . '/';
 define('BASE_URL', $base_url);
 define('SITE_NAME', 'Portal de Noticias');
 
@@ -76,6 +78,7 @@ function formatDate($date, $format = 'd/m/Y H:i') {
 }
 
 function truncateText($text, $length = 150) {
+    if (!is_string($text)) $text = (string)($text ?? '');
     if (strlen($text) <= $length) return $text;
     return substr($text, 0, $length) . '...';
 }

@@ -5,8 +5,8 @@ function openCreateNewsModal() {
         const modal = new bootstrap.Modal(document.getElementById('createNewsModal'));
         modal.show();
     } else {
-        // Si no está en esta página, redirige a la lista de noticias donde sí existe el modal
-        window.location.href = '/clone/portal_noticias/admin/news-list';
+        // Redirige de forma dinámica usando la variable BASE_URL generada por PHP
+        window.location.href = "<?= BASE_URL ?>admin/news-list";
     }
 }
 </script>
