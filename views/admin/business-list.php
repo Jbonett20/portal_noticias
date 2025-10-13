@@ -67,15 +67,23 @@ ob_start();
                         </tr>
                     </thead>
                     <tbody>
-                        <?php if (empty($businesses)): ?>
+                        <?php
+                        $page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
+                        $perPage = 10;
+                        $totalBusinesses = count($businesses);
+                        $totalPages = ceil($totalBusinesses / $perPage);
+                        $start = ($page - 1) * $perPage;
+                        $businessesPage = array_slice($businesses, $start, $perPage);
+                        if (empty($businessesPage)) {
+                        ?>
                         <tr>
                             <td colspan="8" class="text-center text-muted py-4">
                                 <i class="bi bi-shop fs-3 d-block mb-2"></i>
                                 No hay negocios registrados
                             </td>
                         </tr>
-                        <?php else: ?>
-                        <?php foreach ($businesses as $business): ?>
+                        <?php } else {
+                        foreach ($businessesPage as $business): ?>
                         <tr>
                             <td><?= $business['id'] ?></td>
                             <td>
@@ -124,10 +132,30 @@ ob_start();
                                 </div>
                             </td>
                         </tr>
-                        <?php endforeach; ?>
-                        <?php endif; ?>
+                        <?php endforeach; }
+                        ?>
                     </tbody>
                 </table>
+                                <!-- Paginación -->
+                                <nav aria-label="Paginación de negocios" class="mt-3">
+                                    <ul class="pagination justify-content-center">
+                                        <?php if ($page > 1): ?>
+                                            <li class="page-item">
+                                                <a class="page-link" href="?page=<?= $page - 1 ?>">Anterior</a>
+                                            </li>
+                                        <?php endif; ?>
+                                        <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                                            <li class="page-item <?= $i == $page ? 'active' : '' ?>">
+                                                <a class="page-link" href="?page=<?= $i ?>"><?= $i ?></a>
+                                            </li>
+                                        <?php endfor; ?>
+                                        <?php if ($page < $totalPages): ?>
+                                            <li class="page-item">
+                                                <a class="page-link" href="?page=<?= $page + 1 ?>">Siguiente</a>
+                                            </li>
+                                        <?php endif; ?>
+                                    </ul>
+                                </nav>
             </div>
         </div>
     </div>
