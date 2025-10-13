@@ -208,6 +208,7 @@ ob_start();
                                 <select class="form-control" id="edit_role" name="role" required>
                                     <option value="user">Usuario</option>
                                     <option value="editor">Editor</option>
+                                    <option value="redactor">Redactor</option>
                                     <option value="admin">Administrador</option>
                                 </select>
                             </div>
@@ -284,6 +285,8 @@ function openEditModal(userId) {
         roleValue = 'admin';
     } else if (user.role == 2 || user.role === 'editor') {
         roleValue = 'editor';
+    } else if (user.role == 4 || user.role === 'redactor') {
+        roleValue = 'redactor';
     } else {
         roleValue = 'user'; // rol 3 o cualquier otro valor
     }
@@ -342,6 +345,9 @@ function getRoleBadgeColor($role) {
         case 2:
         case 'editor': 
             return 'warning';
+        case 4:
+        case 'redactor':
+            return 'info';
         case 3:
         case 'user':
         default: 
@@ -357,6 +363,9 @@ function getRoleName($role) {
         case 2:
         case 'editor': 
             return 'Editor';
+        case 4:
+        case 'redactor':
+            return 'Redactor';
         case 3:
         case 'user':
         default: 

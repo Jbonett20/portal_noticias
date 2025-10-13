@@ -1,0 +1,8 @@
+2025-10-13 15:55:40 | updateUser: id=8, role recibido=2
+role guardado=3
+2025-10-13 15:56:36 | updateUser: id=8, role recibido=4
+role guardado=4
+2025-10-13 15:57:38 | updateUser: id=7, role recibido=2
+role guardado=2
+2025-10-13 15:57:48 | updateUser: id=7, role recibido=4
+role guardado=4
