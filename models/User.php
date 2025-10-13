@@ -13,6 +13,8 @@ class User {
             $role = 1;
         } elseif ($role === 'editor') {
             $role = 2;
+        } elseif ($role === 'redactor') {
+            $role = 4;
         } else {
             $role = 3; // usuario básico
         }
@@ -64,24 +66,53 @@ class User {
     }
     
     public function update($id, $data) {
+
         $updateData = [
             'updated_at' => date('Y-m-d H:i:s')
         ];
-        
+
+        // Log temporal para depuración
+        $logMsg = date('Y-m-d H:i:s') . " | updateUser: id=$id, role recibido=" . (isset($data['role']) ? $data['role'] : 'NO SET') . "\n";
+
+        // Convertir rol string a número si se actualiza
+
+        if (isset($data['role'])) {
+            $role = $data['role'];
+            // Si es numérico, usarlo directamente
+            if (is_numeric($role)) {
+                $role = intval($role);
+            } else {
+                if ($role === 'admin') {
+                    $role = 1;
+                } elseif ($role === 'editor') {
+                    $role = 2;
+                } elseif ($role === 'redactor') {
+                    $role = 4;
+                } else {
+                    $role = 3;
+                }
+            }
+            $updateData['role'] = $role;
+            $logMsg .= "role guardado=$role\n";
+        }
+
+
         // Campos opcionales que se actualizarán si están presentes
-        $allowedFields = ['username', 'email', 'full_name', 'role', 'is_active', 'business_id'];
-        
+        $allowedFields = ['username', 'email', 'full_name', 'is_active', 'business_id'];
         foreach ($allowedFields as $field) {
             if (isset($data[$field])) {
                 $updateData[$field] = $data[$field];
             }
         }
-        
+
+        // Guardar log en archivo
+        file_put_contents(__DIR__ . '/../logs/user_update_log.txt', $logMsg, FILE_APPEND);
+
         // Solo actualizar contraseña si se proporciona
         if (isset($data['password_hash'])) {
             $updateData['password_hash'] = $data['password_hash'];
         }
-        
+
         return $this->db->update('users', $updateData, 'id = ?', $id);
     }
     

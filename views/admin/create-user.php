@@ -106,6 +106,9 @@ ob_start();
                                         <option value="editor" <?= ($_POST['role'] ?? '') === 'editor' ? 'selected' : '' ?>>
                                             Editor/Propietario de Negocio
                                         </option>
+                                        <option value="redactor" <?= ($_POST['role'] ?? '') === 'redactor' ? 'selected' : '' ?>>
+                                            Redactor (Crear y editar noticias)
+                                        </option>
                                         <option value="admin" <?= ($_POST['role'] ?? '') === 'admin' ? 'selected' : '' ?>>
                                             Administrador
                                         </option>
@@ -138,6 +141,7 @@ ob_start();
                                 <li><strong>Usuario Básico:</strong> Solo puede ver contenido público</li>
                                 <li><strong>Editor:</strong> Puede gestionar su negocio y publicar noticias</li>
                                 <li><strong>Administrador:</strong> Control total del sistema</li>
+                                <li><strong>Redactor:</strong> Puede crear y editar noticias, pero no gestionar negocios</li>
                             </ul>
                         </div>
 

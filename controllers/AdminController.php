@@ -155,10 +155,21 @@ class AdminController {
                 $error = 'Email y nombre completo son obligatorios';
             } else {
                 try {
+                    // Convertir rol string a número
+                    $roleNum = $role;
+                    if ($role === 'admin') {
+                        $roleNum = 1;
+                    } elseif ($role === 'editor') {
+                        $roleNum = 2;
+                    } elseif ($role === 'redactor') {
+                        $roleNum = 4;
+                    } else {
+                        $roleNum = 3;
+                    }
                     $updateData = [
                         'email' => $email,
                         'full_name' => $fullName,
-                        'role' => $role,
+                        'role' => $roleNum,
                         'business_id' => $businessId
                     ];
                     
@@ -224,6 +235,7 @@ class AdminController {
     
     public function updateUser($segments = []) {
         try {
+          
             require_once __DIR__ . '/../seguridad.php';
             verificarAdmin();
             
@@ -254,9 +266,13 @@ class AdminController {
                 $role = 1;
             } elseif ($roleString === 'editor') {
                 $role = 2;
-            } else {
+            } elseif ($roleString === 'redactor') {
+                $role = 4;
+            }
+            else {
                 $role = 3; // usuario básico
             }
+            
             
             // Validaciones
             if (empty($username) || empty($email)) {
@@ -310,10 +326,9 @@ class AdminController {
                     return;
                 }
                 $updateData['password_hash'] = password_hash($password, PASSWORD_DEFAULT);
+
             }
-            
             $result = $this->userModel->update($userId, $updateData);
-            
             if ($result) {
                 $_SESSION['success'] = 'Usuario actualizado correctamente';
             } else {
@@ -433,11 +448,8 @@ class AdminController {
         $newsId = $segments[1] ?? null;
         if (!$newsId) {
             redirect(BASE_URL . 'admin/news-list');
-        }
+
         
-        $news = $this->newsModel->findById($newsId);
-        if (!$news) {
-            redirect(BASE_URL . 'admin/news-list');
         }
         
         $error = '';
