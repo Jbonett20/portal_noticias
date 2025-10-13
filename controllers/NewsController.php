@@ -127,11 +127,7 @@ class NewsController {
     // Crear nueva noticia
     public function create() {
         require_once 'seguridad.php';
-        if (!isset($_SESSION['user']['role']) || $_SESSION['user']['role'] !== 'redactor') {
-            $_SESSION['error'] = 'Solo el rol redactor puede crear noticias.';
-            header('Location: index.php?controller=news&action=admin');
-            exit;
-        }
+        verificarEditor();
         
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!verificarTokenCSRF($_POST['csrf_token'])) {
@@ -179,11 +175,7 @@ class NewsController {
     // Editar noticia
     public function edit() {
         require_once 'seguridad.php';
-        if (!isset($_SESSION['user']['role']) || $_SESSION['user']['role'] !== 'redactor') {
-            $_SESSION['error'] = 'Solo el rol redactor puede editar noticias.';
-            header('Location: index.php?controller=news&action=admin');
-            exit;
-        }
+        verificarEditor();
         
         if (!isset($_GET['id'])) {
             header('Location: index.php?controller=news&action=admin');
