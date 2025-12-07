@@ -50,6 +50,11 @@ function isEditor() {
     return $user && in_array($user['role'], ['admin', 'editor']);
 }
 
+function isRedactor() {
+    $user = getCurrentUser();
+    return $user && in_array($user['role'], ['admin', 'redactor']);
+}
+
 function canEditBusiness($businessId) {
     $user = getCurrentUser();
     if (!$user) return false;

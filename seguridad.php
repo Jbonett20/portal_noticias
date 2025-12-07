@@ -35,7 +35,7 @@ function verificarSesion() {
 function verificarAdmin() {
     verificarSesion(); // Primero verificar que esté logueado
     
-    if (!isAdmin()) {
+    if (!isAdmin() ) {
         header('Location: ' . BASE_URL . 'dashboard');
         exit('Acceso denegado. Se requieren permisos de administrador.');
     }
@@ -52,7 +52,13 @@ function verificarEditor() {
         exit('Acceso denegado. Se requieren permisos de editor.');
     }
 }
-
+function verificarRedactor() {
+    verificarSesion(); // Primero verificar que esté logueado
+    if (!isRedactor()) {
+        header('Location: ' . BASE_URL . 'login');
+        exit('Acceso denegado. Se requieren permisos de redactor o administrador.');
+    }
+}
 /**
  * Verificar que el usuario tenga acceso a un negocio específico
  */

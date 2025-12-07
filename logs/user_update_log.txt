@@ -6,3 +6,5 @@ role guardado=4
 role guardado=2
 2025-10-13 15:57:48 | updateUser: id=7, role recibido=4
 role guardado=4
+2025-10-13 21:39:15 | updateUser: id=10, role recibido=2
+role guardado=2
