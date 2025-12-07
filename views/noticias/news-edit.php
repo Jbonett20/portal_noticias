@@ -1,7 +1,7 @@
 <?php
 // Verificar permisos de administrador
 require_once __DIR__ . '/../../seguridad.php';
-verificarAdmin();
+verificarRedactor();
 
 $title = 'Editar Noticia - ' . SITE_NAME;
 ob_start();
@@ -304,7 +304,7 @@ ob_start();
                                    class="btn btn-info" target="_blank">
                                     <i class="fas fa-eye"></i> Ver Noticia
                                 </a>
-                                <a href="index.php?controller=news&action=admin" class="btn btn-secondary">
+                                <a href="<?= BASE_URL ?>noticias/news-list" class="btn btn-secondary">
                                     <i class="fas fa-arrow-left"></i> Volver a Lista
                                 </a>
                             </div>

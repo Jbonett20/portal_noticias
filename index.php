@@ -120,6 +120,19 @@ class Router {
             } elseif ($segments[0] === 'search') {
                 $controller = 'HomeController';
                 $action = 'search';
+            } elseif ($segments[0] === 'noticias') {
+                $controller = 'NoticiasController';
+                if (!isset($segments[1]) || $segments[1] === 'news-list') {
+                    $action = 'newsList';
+                } elseif ($segments[1] === 'news-create') {
+                    $action = 'newsCreate';
+                } elseif ($segments[1] === 'news-edit' && isset($segments[2])) {
+                    $action = 'newsEdit';
+                } elseif ($segments[1] === 'news-update' && isset($segments[2])) {
+                    $action = 'newsUpdate';
+                } else {
+                    $action = 'newsList';
+                }
             } else {
                 $this->showError('Página no encontrada', 404);
                 return;

@@ -1,52 +1,12 @@
 <?php
 // Verificar permisos de administrador
 require_once __DIR__ . '/../../seguridad.php';
-verificarAdmin();
+verificarRedactor();
 
-$title = 'Editar Noticia - ' . SITE_NAME;
+$title = 'Crear Noticia - ' . SITE_NAME;
 ob_start();
-?> <style>
-
-       
-        .image-preview-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-            margin-top: 1rem;
-        }
-        .preview-item {
-            position: relative;
-            display: inline-block;
-        }
-        .remove-image {
-            position: absolute;
-            top: -8px;
-            right: -8px;
-            background: #dc3545;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            font-size: 12px;
-            cursor: pointer;
-        }
-        .existing-image {
-            position: relative;
-            display: inline-block;
-            margin: 0.5rem;
-        }
-        .existing-image img {
-            max-width: 200px;
-            max-height: 150px;
-            border-radius: 0.5rem;
-            border: 2px solid #28a745;
-        }
-        .file-drop-zone {
-            border: 2px dashed #dee2e6;
-            border-radius: 0.5rem;
-            padding: 2rem;
-            text-align: center;
+?>
+            <!-- text-align: center;
             background: #f8f9fa;
             transition: all 0.3s ease;
             cursor: pointer;
@@ -65,19 +25,16 @@ ob_start();
         .char-counter.danger {
             color: #dc3545;
         }
-    </style>
+    </style> -->
 </head>
 <body class="bg-light">
     <!-- Header -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container-fluid">
             <a class="navbar-brand" href="index.php?controller=news&action=admin">
-                <i class="fas fa-arrow-left"></i> Editar Noticia
+                <i class="fas fa-arrow-left"></i> Crear Noticia
             </a>
             <div class="navbar-nav ms-auto">
-                <a class="nav-link" href="index.php?controller=news&action=show&slug=<?php echo htmlspecialchars($noticia['slug']); ?>" target="_blank">
-                    <i class="fas fa-eye"></i> Ver Noticia
-                </a>
                 <a class="nav-link" href="index.php?controller=news&action=admin">
                     <i class="fas fa-list"></i> Lista de Noticias
                 </a>
@@ -121,20 +78,19 @@ ob_start();
                             <div class="form-floating mb-3">
                                 <input type="text" class="form-control" id="title" name="title" 
                                        placeholder="Título de la noticia" required maxlength="200"
-                                       value="<?php echo htmlspecialchars($noticia['title']); ?>"
                                        oninput="updateCharCounter('title', 200)">
                                 <label for="title">Título de la Noticia *</label>
-                                <div class="char-counter" id="title-counter"><?php echo strlen($noticia['title']); ?>/200 caracteres</div>
+                                <div class="char-counter" id="title-counter">0/200 caracteres</div>
                             </div>
 
                             <!-- Extracto -->
                             <div class="form-floating mb-3">
                                 <textarea class="form-control" id="excerpt" name="excerpt" 
                                           style="height: 100px" placeholder="Extracto de la noticia"
-                                          maxlength="300" oninput="updateCharCounter('excerpt', 300)"><?php echo htmlspecialchars($noticia['excerpt']); ?></textarea>
+                                          maxlength="300" oninput="updateCharCounter('excerpt', 300)"></textarea>
                                 <label for="excerpt">Extracto (resumen breve)</label>
                                 <div class="form-text">Breve resumen que aparecerá en la lista de noticias</div>
-                                <div class="char-counter" id="excerpt-counter"><?php echo strlen($noticia['excerpt']); ?>/300 caracteres</div>
+                                <div class="char-counter" id="excerpt-counter">0/300 caracteres</div>
                             </div>
 
                             <!-- Contenido -->
@@ -142,7 +98,7 @@ ob_start();
                                 <label for="content" class="form-label">Contenido de la Noticia *</label>
                                 <textarea class="form-control" id="content" name="content" 
                                           rows="15" placeholder="Escribe aquí el contenido completo de la noticia..." 
-                                          required><?php echo htmlspecialchars($noticia['content']); ?></textarea>
+                                          required></textarea>
                                 <div class="form-text">Contenido completo de la noticia. Puedes usar saltos de línea para formatear.</div>
                             </div>
 
@@ -150,10 +106,10 @@ ob_start();
                             <div class="form-floating mb-3">
                                 <textarea class="form-control" id="meta_description" name="meta_description" 
                                           style="height: 80px" placeholder="Meta descripción para SEO"
-                                          maxlength="160" oninput="updateCharCounter('meta_description', 160)"><?php echo htmlspecialchars($noticia['meta_description']); ?></textarea>
+                                          maxlength="160" oninput="updateCharCounter('meta_description', 160)"></textarea>
                                 <label for="meta_description">Meta Descripción (SEO)</label>
                                 <div class="form-text">Descripción que aparece en buscadores (opcional)</div>
-                                <div class="char-counter" id="meta_description-counter"><?php echo strlen($noticia['meta_description']); ?>/160 caracteres</div>
+                                <div class="char-counter" id="meta_description-counter">0/160 caracteres</div>
                             </div>
                         </div>
                     </div>
@@ -166,48 +122,23 @@ ob_start();
                             </h5>
                         </div>
                         <div class="card-body">
-                            <!-- Imágenes existentes -->
-                            <?php if (!empty($images)): ?>
-                            <div class="mb-4">
-                                <h6>Imágenes actuales:</h6>
-                                <div class="d-flex flex-wrap">
-                                    <?php foreach ($images as $image): ?>
-                                    <div class="existing-image">
-                                        <img src="<?php echo htmlspecialchars($image['image_path']); ?>" 
-                                             alt="<?php echo htmlspecialchars($image['caption'] ?? 'Imagen'); ?>">
-                                        <button type="button" class="remove-image" 
-                                                onclick="removeExistingImage(<?php echo $image['id']; ?>)"
-                                                title="Eliminar imagen">
-                                            <i class="fas fa-times"></i>
-                                        </button>
-                                        <?php if (!empty($image['caption'])): ?>
-                                        <div class="text-center mt-1">
-                                            <small class="text-muted"><?php echo htmlspecialchars($image['caption']); ?></small>
-                                        </div>
-                                        <?php endif; ?>
-                                    </div>
-                                    <?php endforeach; ?>
-                                </div>
-                            </div>
-                            <?php endif; ?>
-
-                            <!-- Zona de drop para nuevas imágenes -->
+                            <!-- Zona de drop para imágenes -->
                             <div class="file-drop-zone" id="dropZone">
                                 <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
-                                <h5>Arrastra nuevas imágenes aquí o haz clic para seleccionar</h5>
+                                <h5>Arrastra imágenes aquí o haz clic para seleccionar</h5>
                                 <p class="text-muted mb-0">Soporta: JPG, PNG, GIF, WebP (máx. 5MB cada una)</p>
                                 <input type="file" id="images" name="images[]" multiple 
                                        accept="image/jpeg,image/png,image/gif,image/webp" 
                                        style="display: none;">
                             </div>
                             
-                            <!-- Preview de nuevas imágenes -->
+                            <!-- Preview de imágenes -->
                             <div class="image-preview-container" id="imagePreview"></div>
                             
                             <div class="mt-3">
                                 <small class="text-muted">
                                     <i class="fas fa-info-circle"></i>
-                                    Las imágenes se agregarán a la galería existente. La primera imagen (actual o nueva) se usará como imagen principal.
+                                    La primera imagen se usará como imagen principal de la noticia.
                                 </small>
                             </div>
                         </div>
@@ -228,9 +159,8 @@ ob_start();
                             <div class="mb-3">
                                 <label for="status" class="form-label">Estado</label>
                                 <select class="form-select" id="status" name="status">
-                                    <option value="draft" <?php echo $noticia['status'] === 'draft' ? 'selected' : ''; ?>>Borrador</option>
-                                    <option value="published" <?php echo $noticia['status'] === 'published' ? 'selected' : ''; ?>>Publicada</option>
-                                    <option value="archived" <?php echo $noticia['status'] === 'archived' ? 'selected' : ''; ?>>Archivada</option>
+                                    <option value="draft">Borrador</option>
+                                    <option value="published">Publicada</option>
                                 </select>
                             </div>
 
@@ -238,25 +168,24 @@ ob_start();
                             <div class="mb-3">
                                 <label for="category" class="form-label">Categoría</label>
                                 <select class="form-select" id="category" name="category">
-                                    <option value="general" <?php echo $noticia['category'] === 'general' ? 'selected' : ''; ?>>General</option>
-                                    <option value="politica" <?php echo $noticia['category'] === 'politica' ? 'selected' : ''; ?>>Política</option>
-                                    <option value="economia" <?php echo $noticia['category'] === 'economia' ? 'selected' : ''; ?>>Economía</option>
-                                    <option value="deportes" <?php echo $noticia['category'] === 'deportes' ? 'selected' : ''; ?>>Deportes</option>
-                                    <option value="tecnologia" <?php echo $noticia['category'] === 'tecnologia' ? 'selected' : ''; ?>>Tecnología</option>
-                                    <option value="salud" <?php echo $noticia['category'] === 'salud' ? 'selected' : ''; ?>>Salud</option>
-                                    <option value="educacion" <?php echo $noticia['category'] === 'educacion' ? 'selected' : ''; ?>>Educación</option>
-                                    <option value="cultura" <?php echo $noticia['category'] === 'cultura' ? 'selected' : ''; ?>>Cultura</option>
-                                    <option value="entretenimiento" <?php echo $noticia['category'] === 'entretenimiento' ? 'selected' : ''; ?>>Entretenimiento</option>
-                                    <option value="internacional" <?php echo $noticia['category'] === 'internacional' ? 'selected' : ''; ?>>Internacional</option>
-                                    <option value="local" <?php echo $noticia['category'] === 'local' ? 'selected' : ''; ?>>Local</option>
+                                    <option value="general">General</option>
+                                    <option value="politica">Política</option>
+                                    <option value="economia">Economía</option>
+                                    <option value="deportes">Deportes</option>
+                                    <option value="tecnologia">Tecnología</option>
+                                    <option value="salud">Salud</option>
+                                    <option value="educacion">Educación</option>
+                                    <option value="cultura">Cultura</option>
+                                    <option value="entretenimiento">Entretenimiento</option>
+                                    <option value="internacional">Internacional</option>
+                                    <option value="local">Local</option>
                                 </select>
                             </div>
 
                             <!-- Destacada -->
                             <div class="mb-3">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="featured" name="featured"
-                                           <?php echo $noticia['featured'] ? 'checked' : ''; ?>>
+                                    <input class="form-check-input" type="checkbox" id="featured" name="featured">
                                     <label class="form-check-label" for="featured">
                                         <i class="fas fa-star text-warning"></i> Noticia Destacada
                                     </label>
@@ -264,27 +193,15 @@ ob_start();
                                 <div class="form-text">Las noticias destacadas aparecen en la sección principal</div>
                             </div>
 
-                            <!-- Información de la noticia -->
+                            <!-- Información del autor -->
                             <div class="bg-light p-3 rounded">
                                 <h6 class="mb-2">
-                                    <i class="fas fa-info-circle"></i> Información
+                                    <i class="fas fa-user"></i> Información del Autor
                                 </h6>
-                                <p class="mb-1 small">
-                                    <strong>Autor:</strong> <?php echo htmlspecialchars($noticia['author_name'] ?? 'N/A'); ?>
-                                </p>
-                                <p class="mb-1 small">
-                                    <strong>Creada:</strong> <?php echo date('d/m/Y H:i', strtotime($noticia['created_at'])); ?>
-                                </p>
-                                <?php if ($noticia['updated_at'] && $noticia['updated_at'] !== $noticia['created_at']): ?>
-                                <p class="mb-1 small">
-                                    <strong>Actualizada:</strong> <?php echo date('d/m/Y H:i', strtotime($noticia['updated_at'])); ?>
-                                </p>
-                                <?php endif; ?>
-                                <p class="mb-1 small">
-                                    <strong>Vistas:</strong> <?php echo number_format($noticia['views']); ?>
-                                </p>
                                 <p class="mb-0 small">
-                                    <strong>Slug:</strong> <code><?php echo htmlspecialchars($noticia['slug']); ?></code>
+                                    <strong>Autor:</strong> <?php echo htmlspecialchars($_SESSION['user_name']); ?><br>
+                                    <strong>Rol:</strong> <?php echo isset($_SESSION['role']) ? ucfirst($_SESSION['role']) : 'Usuario'; ?><br>
+                                    <strong>Fecha:</strong> <?php echo date('d/m/Y H:i'); ?>
                                 </p>
                             </div>
                         </div>
@@ -295,17 +212,13 @@ ob_start();
                         <div class="card-body">
                             <div class="d-grid gap-2">
                                 <button type="submit" class="btn btn-success btn-lg">
-                                    <i class="fas fa-save"></i> Actualizar Noticia
+                                    <i class="fas fa-save"></i> Crear Noticia
                                 </button>
                                 <button type="button" class="btn btn-warning" onclick="saveDraft()">
                                     <i class="fas fa-file-alt"></i> Guardar como Borrador
                                 </button>
-                                <a href="index.php?controller=news&action=show&slug=<?php echo htmlspecialchars($noticia['slug']); ?>" 
-                                   class="btn btn-info" target="_blank">
-                                    <i class="fas fa-eye"></i> Ver Noticia
-                                </a>
                                 <a href="index.php?controller=news&action=admin" class="btn btn-secondary">
-                                    <i class="fas fa-arrow-left"></i> Volver a Lista
+                                    <i class="fas fa-times"></i> Cancelar
                                 </a>
                             </div>
                         </div>
@@ -319,15 +232,15 @@ ob_start();
                             </h6>
                         </div>
                         <div class="card-body">
-                            <div id="titlePreview" class="fw-bold mb-2">
-                                <?php echo htmlspecialchars($noticia['title']); ?>
+                            <div id="titlePreview" class="fw-bold mb-2 text-muted">
+                                Título aparecerá aquí...
                             </div>
                             <div id="excerptPreview" class="small text-muted">
-                                <?php echo htmlspecialchars($noticia['excerpt']); ?>
+                                Extracto aparecerá aquí...
                             </div>
                             <div class="mt-2">
-                                <span class="badge bg-secondary" id="categoryPreview"><?php echo htmlspecialchars($noticia['category']); ?></span>
-                                <span class="badge bg-warning ms-1" id="featuredPreview" style="<?php echo $noticia['featured'] ? '' : 'display: none;'; ?>">
+                                <span class="badge bg-secondary" id="categoryPreview">general</span>
+                                <span class="badge bg-warning ms-1" id="featuredPreview" style="display: none;">
                                     <i class="fas fa-star"></i> Destacada
                                 </span>
                             </div>
@@ -380,7 +293,7 @@ ob_start();
         document.getElementById('category').addEventListener('change', updatePreview);
         document.getElementById('featured').addEventListener('change', updatePreview);
 
-        // Manejo de archivos (nuevas imágenes)
+        // Manejo de archivos
         const dropZone = document.getElementById('dropZone');
         const fileInput = document.getElementById('images');
         const imagePreview = document.getElementById('imagePreview');
@@ -455,15 +368,6 @@ ob_start();
             fileInput.files = dt.files;
         }
 
-        // Eliminar imagen existente
-        function removeExistingImage(imageId) {
-            if (confirm('¿Estás seguro de que quieres eliminar esta imagen?')) {
-                // Aquí podrías implementar una llamada AJAX para eliminar la imagen
-                // Por ahora solo ocultamos visualmente
-                event.target.closest('.existing-image').style.display = 'none';
-            }
-        }
-
         // Guardar como borrador
         function saveDraft() {
             document.getElementById('status').value = 'draft';
@@ -494,14 +398,8 @@ ob_start();
             this.style.height = 'auto';
             this.style.height = this.scrollHeight + 'px';
         });
-
-        // Inicializar contadores al cargar la página
-        document.addEventListener('DOMContentLoaded', function() {
-            updateCharCounter('title', 200);
-            updateCharCounter('excerpt', 300);
-            updateCharCounter('meta_description', 160);
-        });
     </script>
+
 <?php
 $content = ob_get_clean();
 include dirname(__DIR__) . '/layout/main.php';

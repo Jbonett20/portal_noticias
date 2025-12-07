@@ -6,7 +6,7 @@ verificarAdmin();
 $title = 'Crear Noticia - ' . SITE_NAME;
 ob_start();
 ?>
-            text-align: center;
+            <!-- text-align: center;
             background: #f8f9fa;
             transition: all 0.3s ease;
             cursor: pointer;
@@ -25,7 +25,7 @@ ob_start();
         .char-counter.danger {
             color: #dc3545;
         }
-    </style>
+    </style> -->
 </head>
 <body class="bg-light">
     <!-- Header -->

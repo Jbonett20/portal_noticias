@@ -1,5 +1,20 @@
 <?php
 class News {
+    // Obtener solo noticias del usuario actual
+    public function getAllWithDetailsByUser($userId) {
+        $sql = "SELECT n.*, 
+                       COALESCE(u.full_name, u.username, 'Admin') as author_name,
+                       '' as section_name,
+                       '' as business_name,
+                       n.summary as excerpt,
+                       CASE WHEN n.is_published = 1 THEN 'published' ELSE 'draft' END as status,
+                       n.featured_image as image_url
+                FROM news n
+                LEFT JOIN users u ON n.author_id = u.id 
+                WHERE n.author_id = ?
+                ORDER BY n.created_at DESC";
+        return $this->db->fetchAll($sql, [$userId]);
+    }
     private $db;
     
     public function __construct($database) {

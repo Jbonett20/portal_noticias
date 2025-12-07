@@ -36,9 +36,11 @@ class AuthController {
                         // Convertir rol numérico a string
                         $roleMap = [
                             1 => 'admin',
-                            2 => 'editor'
+                            2 => 'editor',
+                            4 => 'redactor',
+                            3 => 'user'
                         ];
-                        $roleString = $roleMap[$user['role']] ?? 'editor';
+                        $roleString = $roleMap[$user['role']] ?? 'user';
                         
                         $_SESSION['user_id'] = $user['id'];
                         $_SESSION['user'] = [
@@ -53,6 +55,8 @@ class AuthController {
                         // Redirigir según el rol
                         if ($roleString === 'admin') {
                             redirect(BASE_URL . 'admin');
+                        } elseif ($roleString === 'redactor') {
+                            redirect(BASE_URL . 'noticias/news-list');
                         } else {
                             redirect(BASE_URL . 'dashboard');
                         }
